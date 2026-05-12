@@ -5,27 +5,55 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🎡 園遊會預購系統</title>
     <style>
-        body { font-family: "Microsoft JhengHei", sans-serif; background: #f4f7f6; margin: 0; padding: 0; display: flex; justify-content: center; }
-        .app-container { width: 100%; max-width: 500px; background: white; min-height: 100vh; padding: 20px; box-sizing: border-box; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        /* 現代化 UI 變數與基本設定 */
+        :root {
+            --primary: #ff4757;
+            --primary-hover: #ff6b81;
+            --bg-color: #f1f2f6;
+            --card-bg: #ffffff;
+            --text-main: #2f3542;
+            --text-muted: #747d8c;
+            --shadow: 0 10px 20px rgba(0,0,0,0.08);
+        }
+        body { font-family: "Microsoft JhengHei", "PingFang TC", sans-serif; background: var(--bg-color); margin: 0; padding: 0; display: flex; justify-content: center; color: var(--text-main); }
+        .app-container { width: 100%; max-width: 480px; background: var(--card-bg); min-height: 100vh; padding: 25px; box-sizing: border-box; box-shadow: var(--shadow); position: relative; }
         .hidden { display: none !important; }
-        h2 { text-align: center; color: #333; }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; }
-        input[type="text"], input[type="tel"] { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
-        .btn { width: 100%; padding: 12px; background: #4CAF50; color: white; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; margin-top: 10px; font-weight: bold; }
-        .btn-secondary { background: #9e9e9e; }
-        .btn:hover { opacity: 0.9; }
-        .menu-item { display: flex; align-items: center; padding: 10px; border-bottom: 1px solid #eee; }
-        .menu-item img { width: 80px; height: 80px; object-fit: cover; border-radius: 8px; margin-right: 15px; background: #eee; }
+        
+        h2 { text-align: center; color: var(--text-main); font-weight: 800; margin-bottom: 25px; letter-spacing: 1px; }
+        
+        /* 表單與按鈕現代化 */
+        .form-group { margin-bottom: 18px; }
+        label { display: block; margin-bottom: 8px; font-weight: 600; color: #57606f; font-size: 0.95rem; }
+        input[type="text"], input[type="tel"] { width: 100%; padding: 12px 15px; border: 2px solid #dfe4ea; border-radius: 10px; box-sizing: border-box; font-size: 1rem; transition: 0.3s; outline: none; }
+        input[type="text"]:focus, input[type="tel"]:focus { border-color: var(--primary); }
+        
+        .btn { width: 100%; padding: 14px; background: linear-gradient(135deg, #ff4757, #ff6b81); color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 15px; box-shadow: 0 4px 15px rgba(255, 71, 87, 0.3); transition: transform 0.2s, box-shadow 0.2s; }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(255, 71, 87, 0.4); }
+        .btn-secondary { background: #ced6e0; color: #2f3542; box-shadow: none; }
+        .btn-secondary:hover { background: #a4b0be; box-shadow: none; }
+
+        /* 菜單卡片現代化 */
+        .menu-item { display: flex; align-items: center; padding: 15px; margin-bottom: 15px; background: #fff; border-radius: 15px; border: 1px solid #f1f2f6; box-shadow: 0 4px 10px rgba(0,0,0,0.03); transition: 0.3s; }
+        .menu-item:hover { border-color: #ffeaa7; }
+        .menu-item img { width: 85px; height: 85px; object-fit: cover; border-radius: 12px; margin-right: 15px; }
         .item-info { flex-grow: 1; }
-        .item-title { font-weight: bold; font-size: 18px; margin: 0 0 5px 0; }
-        .item-price { color: #e74c3c; margin: 0; font-weight: bold; }
-        .qty-controls { display: flex; align-items: center; }
-        .qty-btn { width: 30px; height: 30px; background: #ddd; border: none; border-radius: 5px; cursor: pointer; font-size: 18px; font-weight: bold; }
-        .qty-display { margin: 0 10px; font-weight: bold; width: 20px; text-align: center; }
-        .cart-bar { position: sticky; bottom: 20px; margin-top: 20px; }
-        .summary-box { background: #f9f9f9; padding: 15px; border-radius: 8px; border: 1px dashed #ccc; margin-bottom: 15px; }
-        .warning-text { color: #e74c3c; font-weight: bold; text-align: center; margin: 15px 0; }
+        .item-title { font-weight: 700; font-size: 1.1rem; margin: 0 0 5px 0; }
+        
+        /* 價格顯示邏輯 */
+        .price-area { margin-top: 5px; }
+        .old-price { text-decoration: line-through; color: var(--text-muted); font-size: 0.9rem; margin-right: 8px; }
+        .new-price { color: var(--primary); font-weight: 800; font-size: 1.2rem; }
+
+        /* 數量控制器 */
+        .qty-controls { display: flex; align-items: center; background: #f1f2f6; border-radius: 20px; padding: 2px 5px; }
+        .qty-btn { width: 32px; height: 32px; background: white; border: none; border-radius: 50%; cursor: pointer; font-size: 1.2rem; font-weight: bold; color: var(--primary); box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .qty-display { margin: 0 12px; font-weight: 800; width: 20px; text-align: center; }
+
+        /* 其他區域 */
+        .cart-bar { position: sticky; bottom: 20px; margin-top: 20px; z-index: 10; }
+        .summary-box { background: #f8f9fa; padding: 20px; border-radius: 15px; border: 1px dashed #ced6e0; margin-bottom: 20px; }
+        .summary-item { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 1.05rem; }
+        .warning-text { color: var(--primary); font-weight: bold; text-align: center; margin: 15px 0; }
     </style>
 </head>
 <body>
@@ -33,73 +61,60 @@
 <div class="app-container">
     <!-- 畫面 1: 登入/基本資訊 -->
     <div id="page-login">
-        <h2>📝 預購資料填寫</h2>
+        <h2>👋 歡迎來到預購系統</h2>
         <div class="form-group">
-            <label>身分選擇：</label>
-            <input type="radio" name="userType" value="student" checked onchange="toggleUserForm()"> 校內學生
-            <input type="radio" name="userType" value="outsider" onchange="toggleUserForm()"> 校外人員
+            <label>您是校內學生還是訪客？</label>
+            <div style="display:flex; gap:15px; margin-bottom:10px;">
+                <label style="font-weight:normal;"><input type="radio" name="userType" value="student" checked onchange="toggleUserForm()"> 校內學生</label>
+                <label style="font-weight:normal;"><input type="radio" name="userType" value="outsider" onchange="toggleUserForm()"> 校外人員</label>
+            </div>
         </div>
         <div id="student-fields">
-            <div class="form-group">
-                <label>班級：</label>
-                <input type="text" id="classInfo" placeholder="例如：707">
-            </div>
+            <div class="form-group"><label>班級 (例如: 107)</label><input type="text" id="classInfo" placeholder="請輸入班級"></div>
         </div>
         <div id="outsider-fields" class="hidden">
-            <div class="form-group">
-                <label>聯絡電話：</label>
-                <input type="tel" id="phoneInfo" placeholder="例如：0912345678">
-            </div>
+            <div class="form-group"><label>聯絡電話</label><input type="tel" id="phoneInfo" placeholder="請輸入您的手機號碼"></div>
         </div>
-        <div class="form-group">
-            <label>姓名：</label>
-            <input type="text" id="userName" placeholder="例如：陳睿祈">
-        </div>
-        <button class="btn" onclick="goToMenu()">下一步：開始點餐</button>
+        <div class="form-group"><label>您的姓名</label><input type="text" id="userName" placeholder="請輸入姓名"></div>
+        <button class="btn" onclick="goToMenu()">開始點餐 🚀</button>
     </div>
 
     <!-- 畫面 2: 菜單選擇 -->
     <div id="page-menu" class="hidden">
-        <h2>🍔 預購菜單</h2>
-        <div id="menu-list">
-            <p style="text-align:center;">菜單載入中，請稍候...</p>
-        </div>
-        <div class="cart-bar">
-            <button class="btn" onclick="goToCart()">🛒 查看購物車 (<span id="cart-count">0</span>)</button>
-        </div>
+        <h2>🍔 本日嚴選菜單</h2>
+        <div id="menu-list"><p style="text-align:center; color:#747d8c;">美味載入中，請稍候...</p></div>
+        <div class="cart-bar"><button class="btn" onclick="goToCart()">🛒 查看購物車 (<span id="cart-count">0</span>)</button></div>
     </div>
 
     <!-- 畫面 3: 購物車確認 -->
     <div id="page-cart" class="hidden">
-        <h2>🛒 你的購物車</h2>
+        <h2>🛒 我的購物車</h2>
         <div id="cart-items" class="summary-box"></div>
-        <h3 style="text-align: right;">總計: $<span id="cart-total">0</span></h3>
-        <button class="btn" onclick="goToReview()">確認預購</button>
-        <button class="btn btn-secondary" onclick="backToMenu()">繼續點餐</button>
+        <h2 style="text-align: right; color: #ff4757;">總計: $<span id="cart-total">0</span></h2>
+        <button class="btn" onclick="goToReview()">下一步：確認訂單</button>
+        <button class="btn btn-secondary" onclick="backToMenu()">再逛逛</button>
     </div>
 
     <!-- 畫面 4: 最終確認與送出 -->
     <div id="page-review" class="hidden">
         <h2>📋 最終確認</h2>
         <div class="summary-box" id="final-summary"></div>
-        <p class="warning-text">請確認信息是否正確，正確的話，請確認送出</p>
-        <button class="btn" onclick="submitFinalOrder()" id="submitBtn">確認送出</button>
-        <button class="btn btn-secondary" onclick="modifyInfo()">修改信息</button>
+        <p class="warning-text">⚠️ 請確認資訊是否正確，正確的話請按確認送出</p>
+        <button class="btn" onclick="submitFinalOrder()" id="submitBtn">✅ 確認送出</button>
+        <button class="btn btn-secondary" onclick="modifyInfo()">✏️ 修改資訊</button>
     </div>
 </div>
 
 <script>
-    // ⚠️⚠️⚠️ 這裡最重要！請換成你自己的三把鑰匙！ ⚠️⚠️⚠️
+    // ⚠️⚠️⚠️ 記得換成你自己的三把鑰匙！ ⚠️⚠️⚠️
     const API_KEY = '$2a$10$Ved0Z4ofi5lO5WZ7BG7W9eL3y82JQlNiuyQQYm6qJn6CD5dWZ/Xei';
     const ORDER_BIN_ID = '6a032250250b1311c33bdffa'; 
     const MENU_BIN_ID = '6a0328ab250b1311c33c0ecb'; 
-    // -----------------------------------------------------
 
     let menuData = [];
     let userInfo = {};
     let cart = {};
 
-    // 網頁一打開，立刻去雲端把最新菜單抓下來
     window.onload = async function() {
         try {
             const resp = await fetch(`https://api.jsonbin.io/v3/b/${MENU_BIN_ID}/latest`, { headers: { "X-Master-Key": API_KEY } });
@@ -107,8 +122,7 @@
             menuData = data.record || [];
             renderMenu(); 
         } catch (err) {
-            console.error(err);
-            document.getElementById('menu-list').innerHTML = '<p style="text-align:center; color:red;">菜單載入失敗，請重新整理網頁</p>';
+            document.getElementById('menu-list').innerHTML = '<p style="text-align:center; color:red;">載入失敗，請重新整理</p>';
         }
     };
 
@@ -123,7 +137,6 @@
         const name = document.getElementById('userName').value.trim();
         const classInfo = document.getElementById('classInfo').value.trim();
         const phoneInfo = document.getElementById('phoneInfo').value.trim();
-
         if (!name) return alert("請輸入姓名！");
         if (type === 'student' && !classInfo) return alert("請輸入班級！");
         if (type === 'outsider' && !phoneInfo) return alert("請輸入電話！");
@@ -135,23 +148,31 @@
     function renderMenu() {
         const menuList = document.getElementById('menu-list');
         menuList.innerHTML = '';
-        if (menuData.length === 0) {
-            menuList.innerHTML = '<p style="text-align:center;">老闆還沒上架商品喔！</p>';
-            return;
-        }
+        if (menuData.length === 0) { menuList.innerHTML = '<p style="text-align:center;">老闆還沒準備好菜單喔！</p>'; return; }
 
         menuData.forEach(item => {
-            if (!cart[item.id]) cart[item.id] = { ...item, qty: 0 };
+            // 判斷最終結帳價格 (有預購價就用預購價，沒有就用原價)
+            let activePrice = (item.prePrice && item.prePrice > 0) ? item.prePrice : item.price;
             
-            // 處理圖片錯誤的狀況（如果老闆沒貼圖片網址，就顯示預設圖）
-            let imgSrc = item.img ? item.img : 'https://via.placeholder.com/80/cccccc/000000?text=No+Image';
+            // 初始化購物車
+            if (!cart[item.id]) cart[item.id] = { name: item.name, price: activePrice, qty: 0 };
+            
+            // 決定價格顯示的 HTML 邏輯
+            let priceHtml = '';
+            if (item.prePrice && item.prePrice > 0) {
+                priceHtml = `<span class="old-price">$${item.price}</span><span class="new-price">$${item.prePrice}</span>`;
+            } else {
+                priceHtml = `<span class="new-price">$${item.price}</span>`;
+            }
+
+            let imgSrc = item.img ? item.img : 'https://via.placeholder.com/80/cccccc/000000?text=Food';
 
             menuList.innerHTML += `
                 <div class="menu-item">
-                    <img src="${imgSrc}" alt="${item.name}" onerror="this.src='https://via.placeholder.com/80/ffcccc/000000?text=Error'">
+                    <img src="${imgSrc}" onerror="this.src='https://via.placeholder.com/80/ffcccc/000000?text=Error'">
                     <div class="item-info">
                         <p class="item-title">${item.name}</p>
-                        <p class="item-price">$${item.price}</p>
+                        <div class="price-area">${priceHtml}</div>
                     </div>
                     <div class="qty-controls">
                         <button class="qty-btn" onclick="updateQty('${item.id}', -1)">-</button>
@@ -172,7 +193,7 @@
     }
 
     function goToCart() {
-        if (Object.values(cart).reduce((sum, item) => sum + item.qty, 0) === 0) return alert("你還沒有選擇任何餐點喔！");
+        if (Object.values(cart).reduce((sum, item) => sum + item.qty, 0) === 0) return alert("還沒選餐點喔！");
         const cartItemsDiv = document.getElementById('cart-items');
         let html = '';
         let totalAmt = 0;
@@ -180,7 +201,7 @@
             if (item.qty > 0) {
                 let subtotal = item.price * item.qty;
                 totalAmt += subtotal;
-                html += `<div style="display:flex; justify-content:space-between; margin-bottom:5px;"><span>${item.name} x ${item.qty}</span><span>$${subtotal}</span></div>`;
+                html += `<div class="summary-item"><span><b>${item.name}</b> x ${item.qty}</span><span>$${subtotal}</span></div>`;
             }
         });
         cartItemsDiv.innerHTML = html;
@@ -192,15 +213,15 @@
 
     function goToReview() {
         const summaryDiv = document.getElementById('final-summary');
-        let html = `<p><b>姓名：</b> ${userInfo.name}</p><p><b>聯絡資訊：</b> ${userInfo.identity}</p><hr><p><b>預購內容：</b></p>`;
+        let html = `<p style="margin-top:0;"><b>訂購人：</b> ${userInfo.name}</p><p><b>聯絡資訊：</b> ${userInfo.identity}</p><hr style="border:0; border-top:1px dashed #ccc; margin:15px 0;"><p><b>餐點明細：</b></p>`;
         let totalAmt = 0;
         Object.values(cart).forEach(item => {
             if (item.qty > 0) {
-                html += `<p>- ${item.name} x ${item.qty}</p>`;
+                html += `<div class="summary-item"><span>- ${item.name} x ${item.qty}</span></div>`;
                 totalAmt += (item.price * item.qty);
             }
         });
-        html += `<hr><h3 style="text-align:right; margin:0;">總計金額：$${totalAmt}</h3>`;
+        html += `<hr style="border:0; border-top:1px dashed #ccc; margin:15px 0;"><h2 style="text-align:right; margin:0; color:#ff4757;">應付金額：$${totalAmt}</h2>`;
         summaryDiv.innerHTML = html;
         switchPage('page-review');
     }
@@ -209,7 +230,7 @@
 
     async function submitFinalOrder() {
         const btn = document.getElementById('submitBtn');
-        btn.innerText = "訂單傳送中...";
+        btn.innerText = "🔄 訂單傳送中...";
         btn.disabled = true;
 
         let orderItems = '';
@@ -221,36 +242,23 @@
             }
         });
 
-        // 整理要傳到雲端的訂單格式
-        const newOrder = { 
-            time: new Date().toLocaleTimeString(), 
-            name: userInfo.name, 
-            identity: userInfo.identity, 
-            items: orderItems, 
-            total: totalAmt 
-        };
+        const newOrder = { time: new Date().toLocaleTimeString(), name: userInfo.name, identity: userInfo.identity, items: orderItems, total: totalAmt };
 
         try {
-            // 注意！這裡是傳送到 ORDER_BIN_ID，不能傳到菜單的 Bin 喔！
             const getResp = await fetch(`https://api.jsonbin.io/v3/b/${ORDER_BIN_ID}/latest`, { headers: { "X-Master-Key": API_KEY } });
             const oldData = await getResp.json();
             let allOrders = oldData.record || [];
             allOrders.push(newOrder);
 
-            const updateResp = await fetch(`https://api.jsonbin.io/v3/b/${ORDER_BIN_ID}`, {
-                method: 'PUT',
-                headers: { "Content-Type": "application/json", "X-Master-Key": API_KEY },
-                body: JSON.stringify(allOrders)
-            });
+            const updateResp = await fetch(`https://api.jsonbin.io/v3/b/${ORDER_BIN_ID}`, { method: 'PUT', headers: { "Content-Type": "application/json", "X-Master-Key": API_KEY }, body: JSON.stringify(allOrders) });
 
             if (updateResp.ok) {
                 alert("🎉 預購成功！老闆已經收到你的訂單囉！");
-                location.reload(); // 讓網頁重整，準備接下一位客人的單
+                location.reload(); 
             }
         } catch (err) {
-            console.error(err);
-            alert("傳送失敗，請檢查網路連線或稍後再試！");
-            btn.innerText = "確認送出";
+            alert("傳送失敗，請稍後再試！");
+            btn.innerText = "✅ 確認送出";
             btn.disabled = false;
         }
     }
@@ -261,8 +269,8 @@
         document.getElementById('page-cart').classList.add('hidden');
         document.getElementById('page-review').classList.add('hidden');
         document.getElementById(pageId).classList.remove('hidden');
+        window.scrollTo(0,0);
     }
 </script>
-
 </body>
 </html>
