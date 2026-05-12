@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🍔 園遊會後台 - 老闆專用</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; background: #2c3e50; color: white; }
+        .container { max-width: 800px; margin: 0 auto; background: white; color: black; padding: 20px; border-radius: 10px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background-color: #f4f4f4; }
+        button { padding: 10px 20px; background: #e74c3c; color: white; border: none; border-radius: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>📊 園遊會訂單管理系統</h2>
+    <button onclick="loadOrders()">🔄 重新整理訂單</button>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>訂購時間</th>
+                <th>姓名 / 聯絡方式</th>
+                <th>餐點明細</th>
+                <th>總金額</th>
+            </tr>
+        </thead>
+        <tbody id="order-list">
+            </tbody>
+    </table>
+</div>
+
+<script>
+    // ⚠️ 這裡要換成你自己的 JSONBin 資料
+    const BIN_ID = '你的BIN_ID'; 
+    const API_KEY = '你的API_KEY';
+
+    async function loadOrders() {
+        document.getElementById('order-list').innerHTML = '<tr><td colspan="4">讀取中...</td></tr>';
+        
+        try {
+            const resp = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
+                headers: { "X-Master-Key": API_KEY }
+            });
+            const data = await resp.json();
+            const orders = data.record || [];
+            
+            let html = '';
+            orders.forEach(order => {
+                html += `
+                    <tr>
+                        <td>${order.time}</td>
+                        <td><b>${order.name}</b><br><small>${order.identity}</small></td>
+                        <td>${order.items}</td>
+                        <td style="color:red; font-weight:bold;">$${order.total}</td>
+                    </tr>
+                `;
+            });
+            document.getElementById('order-list').innerHTML = html || '<tr><td colspan="4">目前還沒有訂單喔！</td></tr>';
+        } catch (err) {
+            alert('讀取失敗，請檢查 API Key 或網路連線');
+        }
+    }
+
+    // 網頁打開自動讀取一次
+    loadOrders();
+</script>
+</body>
+</html>
