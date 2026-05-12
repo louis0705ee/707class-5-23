@@ -1,0 +1,12 @@
+{
+  "name": "fair-order-web",
+  "version": "1.0.0",
+  "description": "園遊會動態點餐網站",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
