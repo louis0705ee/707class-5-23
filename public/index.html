@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>園遊會預購系統</title>
+    <title>🎡 園遊會預購系統</title>
     <style>
         body { font-family: "Microsoft JhengHei", sans-serif; background: #f4f7f6; margin: 0; padding: 0; display: flex; justify-content: center; }
         .app-container { width: 100%; max-width: 500px; background: white; min-height: 100vh; padding: 20px; box-sizing: border-box; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
@@ -12,16 +12,16 @@
         .form-group { margin-bottom: 15px; }
         label { display: block; margin-bottom: 5px; font-weight: bold; }
         input[type="text"], input[type="tel"] { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
-        .btn { width: 100%; padding: 12px; background: #4CAF50; color: white; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; margin-top: 10px; }
+        .btn { width: 100%; padding: 12px; background: #4CAF50; color: white; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; margin-top: 10px; font-weight: bold; }
         .btn-secondary { background: #9e9e9e; }
         .btn:hover { opacity: 0.9; }
         .menu-item { display: flex; align-items: center; padding: 10px; border-bottom: 1px solid #eee; }
         .menu-item img { width: 80px; height: 80px; object-fit: cover; border-radius: 8px; margin-right: 15px; background: #eee; }
         .item-info { flex-grow: 1; }
         .item-title { font-weight: bold; font-size: 18px; margin: 0 0 5px 0; }
-        .item-price { color: #e74c3c; margin: 0; }
+        .item-price { color: #e74c3c; margin: 0; font-weight: bold; }
         .qty-controls { display: flex; align-items: center; }
-        .qty-btn { width: 30px; height: 30px; background: #ddd; border: none; border-radius: 5px; cursor: pointer; font-size: 18px; }
+        .qty-btn { width: 30px; height: 30px; background: #ddd; border: none; border-radius: 5px; cursor: pointer; font-size: 18px; font-weight: bold; }
         .qty-display { margin: 0 10px; font-weight: bold; width: 20px; text-align: center; }
         .cart-bar { position: sticky; bottom: 20px; margin-top: 20px; }
         .summary-box { background: #f9f9f9; padding: 15px; border-radius: 8px; border: 1px dashed #ccc; margin-bottom: 15px; }
@@ -31,6 +31,7 @@
 <body>
 
 <div class="app-container">
+    <!-- 畫面 1: 登入/基本資訊 -->
     <div id="page-login">
         <h2>📝 預購資料填寫</h2>
         <div class="form-group">
@@ -57,14 +58,18 @@
         <button class="btn" onclick="goToMenu()">下一步：開始點餐</button>
     </div>
 
+    <!-- 畫面 2: 菜單選擇 -->
     <div id="page-menu" class="hidden">
         <h2>🍔 預購菜單</h2>
-        <div id="menu-list"></div>
+        <div id="menu-list">
+            <p style="text-align:center;">菜單載入中，請稍候...</p>
+        </div>
         <div class="cart-bar">
             <button class="btn" onclick="goToCart()">🛒 查看購物車 (<span id="cart-count">0</span>)</button>
         </div>
     </div>
 
+    <!-- 畫面 3: 購物車確認 -->
     <div id="page-cart" class="hidden">
         <h2>🛒 你的購物車</h2>
         <div id="cart-items" class="summary-box"></div>
@@ -73,6 +78,7 @@
         <button class="btn btn-secondary" onclick="backToMenu()">繼續點餐</button>
     </div>
 
+    <!-- 畫面 4: 最終確認與送出 -->
     <div id="page-review" class="hidden">
         <h2>📋 最終確認</h2>
         <div class="summary-box" id="final-summary"></div>
@@ -83,18 +89,28 @@
 </div>
 
 <script>
-    // ⚠️ 這裡要換成你自己的 JSONBin 密鑰！
-    const BIN_ID = '6a032250250b1311c33bdffa'; 
+    // ⚠️⚠️⚠️ 這裡最重要！請換成你自己的三把鑰匙！ ⚠️⚠️⚠️
     const API_KEY = '$2a$10$Ved0Z4ofi5lO5WZ7BG7W9eL3y82JQlNiuyQQYm6qJn6CD5dWZ/Xei';
+    const ORDER_BIN_ID = '6a032250250b1311c33bdffa'; 
+    const MENU_BIN_ID = '6a0328ab250b1311c33c0ecb'; 
+    // -----------------------------------------------------
 
-    const menuData = [
-        { id: 'm1', name: '招牌大腸包小腸', price: 60, img: 'https://via.placeholder.com/80/FFB6C1/000000?text=Sausage' },
-        { id: 'm2', name: '清涼彈珠汽水', price: 35, img: 'https://via.placeholder.com/80/87CEFA/000000?text=Soda' },
-        { id: 'm3', name: '現炸脆薯', price: 40, img: 'https://via.placeholder.com/80/FFD700/000000?text=Fries' }
-    ];
-
+    let menuData = [];
     let userInfo = {};
     let cart = {};
+
+    // 網頁一打開，立刻去雲端把最新菜單抓下來
+    window.onload = async function() {
+        try {
+            const resp = await fetch(`https://api.jsonbin.io/v3/b/${MENU_BIN_ID}/latest`, { headers: { "X-Master-Key": API_KEY } });
+            const data = await resp.json();
+            menuData = data.record || [];
+            renderMenu(); 
+        } catch (err) {
+            console.error(err);
+            document.getElementById('menu-list').innerHTML = '<p style="text-align:center; color:red;">菜單載入失敗，請重新整理網頁</p>';
+        }
+    };
 
     function toggleUserForm() {
         const isStudent = document.querySelector('input[name="userType"]:checked').value === 'student';
@@ -113,18 +129,26 @@
         if (type === 'outsider' && !phoneInfo) return alert("請輸入電話！");
 
         userInfo = { type, name, identity: type === 'student' ? `班級: ${classInfo}` : `電話: ${phoneInfo}` };
-        renderMenu();
         switchPage('page-menu');
     }
 
     function renderMenu() {
         const menuList = document.getElementById('menu-list');
         menuList.innerHTML = '';
+        if (menuData.length === 0) {
+            menuList.innerHTML = '<p style="text-align:center;">老闆還沒上架商品喔！</p>';
+            return;
+        }
+
         menuData.forEach(item => {
             if (!cart[item.id]) cart[item.id] = { ...item, qty: 0 };
+            
+            // 處理圖片錯誤的狀況（如果老闆沒貼圖片網址，就顯示預設圖）
+            let imgSrc = item.img ? item.img : 'https://via.placeholder.com/80/cccccc/000000?text=No+Image';
+
             menuList.innerHTML += `
                 <div class="menu-item">
-                    <img src="${item.img}" alt="${item.name}">
+                    <img src="${imgSrc}" alt="${item.name}" onerror="this.src='https://via.placeholder.com/80/ffcccc/000000?text=Error'">
                     <div class="item-info">
                         <p class="item-title">${item.name}</p>
                         <p class="item-price">$${item.price}</p>
@@ -148,7 +172,7 @@
     }
 
     function goToCart() {
-        if (Object.values(cart).reduce((sum, item) => sum + item.qty, 0) === 0) return alert("你還沒有選擇餐點喔！");
+        if (Object.values(cart).reduce((sum, item) => sum + item.qty, 0) === 0) return alert("你還沒有選擇任何餐點喔！");
         const cartItemsDiv = document.getElementById('cart-items');
         let html = '';
         let totalAmt = 0;
@@ -197,15 +221,23 @@
             }
         });
 
-        const newOrder = { time: new Date().toLocaleTimeString(), name: userInfo.name, identity: userInfo.identity, items: orderItems, total: totalAmt };
+        // 整理要傳到雲端的訂單格式
+        const newOrder = { 
+            time: new Date().toLocaleTimeString(), 
+            name: userInfo.name, 
+            identity: userInfo.identity, 
+            items: orderItems, 
+            total: totalAmt 
+        };
 
         try {
-            const getResp = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, { headers: { "X-Master-Key": API_KEY } });
+            // 注意！這裡是傳送到 ORDER_BIN_ID，不能傳到菜單的 Bin 喔！
+            const getResp = await fetch(`https://api.jsonbin.io/v3/b/${ORDER_BIN_ID}/latest`, { headers: { "X-Master-Key": API_KEY } });
             const oldData = await getResp.json();
             let allOrders = oldData.record || [];
             allOrders.push(newOrder);
 
-            const updateResp = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
+            const updateResp = await fetch(`https://api.jsonbin.io/v3/b/${ORDER_BIN_ID}`, {
                 method: 'PUT',
                 headers: { "Content-Type": "application/json", "X-Master-Key": API_KEY },
                 body: JSON.stringify(allOrders)
@@ -213,10 +245,11 @@
 
             if (updateResp.ok) {
                 alert("🎉 預購成功！老闆已經收到你的訂單囉！");
-                location.reload();
+                location.reload(); // 讓網頁重整，準備接下一位客人的單
             }
         } catch (err) {
-            alert("傳送失敗，請稍後再試！");
+            console.error(err);
+            alert("傳送失敗，請檢查網路連線或稍後再試！");
             btn.innerText = "確認送出";
             btn.disabled = false;
         }
