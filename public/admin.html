@@ -5,13 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🍔 園遊會後台 - 老闆專用</title>
     <style>
-        body { font-family: sans-serif; padding: 20px; background: #2c3e50; color: white; }
-        .container { max-width: 900px; margin: 0 auto; background: white; color: black; padding: 20px; border-radius: 10px; margin-bottom: 20px;}
+        body { font-family: "Microsoft JhengHei", sans-serif; background: #2c3e50; color: white; margin: 0; padding: 20px; }
+        
+        /* 登入畫面樣式 */
+        #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #2c3e50; display: flex; justify-content: center; align-items: center; z-index: 100; }
+        .login-box { background: white; color: #333; padding: 40px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center; width: 300px; }
+        .login-box input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; }
+        .login-btn { width: 100%; padding: 12px; background: #e74c3c; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        .login-btn:hover { background: #c0392b; }
+
+        /* 後台主體樣式 */
+        #admin-panel { display: none; } /* 登入前隱藏 */
+        .container { max-width: 1000px; margin: 0 auto 30px auto; background: white; color: black; padding: 25px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
         table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
-        th { background-color: #f4f4f4; }
-        input { padding: 8px; width: 90%; box-sizing: border-box; }
-        button { padding: 10px 15px; background: #e74c3c; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; margin-right: 5px;}
+        th, td { border: 1px solid #eee; padding: 12px; text-align: center; }
+        th { background-color: #f8f9fa; color: #333; }
+        td input { padding: 8px; width: 90%; box-sizing: border-box; border: 1px solid #ddd; border-radius: 5px; text-align: center; }
+        
+        button { padding: 10px 15px; background: #3498db; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; margin-right: 5px; transition: 0.2s; }
+        button.red { background: #e74c3c; }
         button.green { background: #2ecc71; }
         button:hover { opacity: 0.8; }
         .menu-img-preview { width: 50px; height: 50px; object-fit: cover; border-radius: 5px; }
@@ -19,33 +31,79 @@
 </head>
 <body>
 
-<div class="container">
-    <h2>📊 園遊會訂單管理</h2>
-    <button onclick="loadOrders()">🔄 重新整理訂單</button>
-    <table>
-        <thead><tr><th>時間</th><th>姓名 / 聯絡方式</th><th>餐點明細</th><th>總金額</th></tr></thead>
-        <tbody id="order-list"></tbody>
-    </table>
+<!-- 🔒 登入畫面 -->
+<div id="login-screen">
+    <div class="login-box">
+        <h2>🧑‍💼 管理員登入</h2>
+        <input type="text" id="adminUser" placeholder="請輸入帳號">
+        <input type="password" id="adminPass" placeholder="請輸入密碼">
+        <button class="login-btn" onclick="checkLogin()">登入系統</button>
+        <p id="errorMsg" style="color:red; display:none; font-size:14px;">帳號或密碼錯誤！</p>
+    </div>
 </div>
 
-<div class="container">
-    <h2>🛠️ 菜單管理 (上下架與修改)</h2>
-    <button class="green" onclick="addNewItemRow()">➕ 新增一項商品</button>
-    <button onclick="saveMenuToCloud()">💾 儲存菜單到雲端</button>
+<!-- 📊 後台系統 (登入後才會顯示) -->
+<div id="admin-panel">
     
-    <table>
-        <thead><tr><th>圖片預覽</th><th>商品名稱</th><th>價格 ($)</th><th>圖片網址 (URL)</th><th>操作</th></tr></thead>
-        <tbody id="menu-edit-list"></tbody>
-    </table>
+    <!-- 區塊 1：訂單管理 -->
+    <div class="container">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h2 style="margin: 0;">📊 園遊會訂單管理</h2>
+            <button onclick="loadOrders()">🔄 重新整理最新訂單</button>
+        </div>
+        <table>
+            <thead><tr><th>時間</th><th>姓名 / 聯絡方式</th><th>餐點明細</th><th>總金額</th></tr></thead>
+            <tbody id="order-list"></tbody>
+        </table>
+    </div>
+
+    <!-- 區塊 2：菜單管理 -->
+    <div class="container">
+        <h2>🛠️ 菜單管理 (價格與上下架)</h2>
+        <p style="color: #e74c3c; font-size: 14px;">💡 提示：如果輸入了「預購價」，客人的網頁就會自動把原價劃掉，顯示紅色的預購特價！如果只想顯示單一價格，請把預購價「留空」。</p>
+        <button class="green" onclick="addNewItemRow()" style="margin-bottom: 10px;">➕ 新增一項商品</button>
+        <button onclick="saveMenuToCloud()" style="margin-bottom: 10px;">💾 儲存菜單到雲端</button>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th width="80">圖片預覽</th>
+                    <th>商品名稱</th>
+                    <th width="100">原價 ($)</th>
+                    <th width="100">預購價 ($)</th>
+                    <th>圖片網址 (URL)</th>
+                    <th width="80">操作</th>
+                </tr>
+            </thead>
+            <tbody id="menu-edit-list"></tbody>
+        </table>
+    </div>
+
 </div>
 
 <script>
-    // ⚠️ 這裡要貼上你所有的鑰匙
+    // ⚠️⚠️⚠️ 記得換成你自己的三把鑰匙！ ⚠️⚠️⚠️
     const API_KEY = '$2a$10$Ved0Z4ofi5lO5WZ7BG7W9eL3y82JQlNiuyQQYm6qJn6CD5dWZ/Xei';
     const ORDER_BIN_ID = '6a032250250b1311c33bdffa'; 
     const MENU_BIN_ID = '6a0328ab250b1311c33c0ecb'; 
 
     let currentMenu = [];
+
+    // --- 🔐 簡單的登入系統驗證 ---
+    function checkLogin() {
+        const user = document.getElementById('adminUser').value;
+        const pass = document.getElementById('adminPass').value;
+        
+        // 驗證你專屬的帳號密碼
+        if (user === 'twlmsh707' && pass === 'LMSH707') {
+            document.getElementById('login-screen').style.display = 'none'; // 隱藏登入畫面
+            document.getElementById('admin-panel').style.display = 'block'; // 顯示後台
+            loadOrders();
+            loadMenu();
+        } else {
+            document.getElementById('errorMsg').style.display = 'block';
+        }
+    }
 
     // --- 訂單讀取功能 ---
     async function loadOrders() {
@@ -56,15 +114,15 @@
             const orders = data.record || [];
             let html = '';
             orders.forEach(order => {
-                html += `<tr><td>${order.time}</td><td><b>${order.name}</b><br><small>${order.identity}</small></td><td>${order.items}</td><td style="color:red; font-weight:bold;">$${order.total}</td></tr>`;
+                html += `<tr><td>${order.time}</td><td><b>${order.name}</b><br><small>${order.identity}</small></td><td style="text-align:left;">${order.items}</td><td style="color:#e74c3c; font-weight:bold; font-size:1.1em;">$${order.total}</td></tr>`;
             });
-            document.getElementById('order-list').innerHTML = html || '<tr><td colspan="4">目前還沒有訂單</td></tr>';
+            document.getElementById('order-list').innerHTML = html || '<tr><td colspan="4">目前還沒有訂單喔</td></tr>';
         } catch (err) { alert('訂單讀取失敗'); }
     }
 
     // --- 菜單管理功能 ---
     async function loadMenu() {
-        document.getElementById('menu-edit-list').innerHTML = '<tr><td colspan="5">菜單讀取中...</td></tr>';
+        document.getElementById('menu-edit-list').innerHTML = '<tr><td colspan="6">菜單讀取中...</td></tr>';
         try {
             const resp = await fetch(`https://api.jsonbin.io/v3/b/${MENU_BIN_ID}/latest`, { headers: { "X-Master-Key": API_KEY } });
             const data = await resp.json();
@@ -76,13 +134,17 @@
     function renderMenuEditor() {
         let html = '';
         currentMenu.forEach((item, index) => {
+            // 如果沒有 prePrice 屬性，就顯示空值
+            let prePriceValue = (item.prePrice && item.prePrice > 0) ? item.prePrice : ''; 
+            
             html += `
                 <tr id="row-${index}">
                     <td><img src="${item.img}" class="menu-img-preview" onerror="this.src='https://via.placeholder.com/50?text=Error'"></td>
                     <td><input type="text" value="${item.name}" id="name-${index}"></td>
                     <td><input type="number" value="${item.price}" id="price-${index}"></td>
-                    <td><input type="text" value="${item.img}" id="img-${index}" placeholder="請貼上圖片網址"></td>
-                    <td><button onclick="removeItem(${index})">🗑️ 刪除</button></td>
+                    <td><input type="number" value="${prePriceValue}" id="prePrice-${index}" placeholder="無則留空"></td>
+                    <td><input type="text" value="${item.img}" id="img-${index}" placeholder="請貼上圖片網址" style="text-align:left;"></td>
+                    <td><button class="red" onclick="removeItem(${index})">刪除</button></td>
                 </tr>
             `;
         });
@@ -90,7 +152,7 @@
     }
 
     function addNewItemRow() {
-        currentMenu.push({ id: 'm' + Date.now(), name: "新商品", price: 0, img: "" });
+        currentMenu.push({ id: 'm' + Date.now(), name: "新商品", price: 0, prePrice: null, img: "" });
         renderMenuEditor();
     }
 
@@ -106,6 +168,7 @@
                 id: item.id,
                 name: document.getElementById(`name-${index}`).value,
                 price: parseInt(document.getElementById(`price-${index}`).value) || 0,
+                prePrice: parseInt(document.getElementById(`prePrice-${index}`).value) || 0, // 抓取預購價
                 img: document.getElementById(`img-${index}`).value
             };
         });
@@ -120,16 +183,12 @@
                 body: JSON.stringify(newMenuData)
             });
             if (resp.ok) {
-                alert("菜單更新成功！客人的畫面已經同步了！");
-                loadMenu(); // 重新讀取
+                alert("✅ 菜單更新成功！客人的畫面已經同步最新特價了！");
+                loadMenu(); // 重新讀取確保畫面正確
             }
         } catch (e) { alert("儲存失敗！"); }
         btn.innerText = "💾 儲存菜單到雲端";
     }
-
-    // 網頁打開時同時讀取訂單與菜單
-    loadOrders();
-    loadMenu();
 </script>
 </body>
 </html>
