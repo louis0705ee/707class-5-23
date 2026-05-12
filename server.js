@@ -2,7 +2,7 @@ const express = require('express');
 const app = express();
 const port = process.env.PORT || 3000;
 
-// 告訴伺服器：把 public 資料夾裡的東西對外公開
+// 告訴伺服器：把 public 資料夾裡面的所有檔案對外公開
 app.use(express.static('public'));
 
 // 啟動伺服器

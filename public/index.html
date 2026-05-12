@@ -6,21 +6,15 @@
     <title>園遊會預購系統</title>
     <style>
         body { font-family: "Microsoft JhengHei", sans-serif; background: #f4f7f6; margin: 0; padding: 0; display: flex; justify-content: center; }
-        .app-container { width: 100%; max-width: 500px; background: white; min-height: 100vh; padding: 20px; box-sizing: border-box; box-shadow: 0 0 10px rgba(0,0,0,0.1); relative; }
-        
-        /* 隱藏區塊的 class */
+        .app-container { width: 100%; max-width: 500px; background: white; min-height: 100vh; padding: 20px; box-sizing: border-box; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
         .hidden { display: none !important; }
-        
         h2 { text-align: center; color: #333; }
         .form-group { margin-bottom: 15px; }
         label { display: block; margin-bottom: 5px; font-weight: bold; }
         input[type="text"], input[type="tel"] { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
-        
         .btn { width: 100%; padding: 12px; background: #4CAF50; color: white; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; margin-top: 10px; }
         .btn-secondary { background: #9e9e9e; }
         .btn:hover { opacity: 0.9; }
-
-        /* 菜單樣式 */
         .menu-item { display: flex; align-items: center; padding: 10px; border-bottom: 1px solid #eee; }
         .menu-item img { width: 80px; height: 80px; object-fit: cover; border-radius: 8px; margin-right: 15px; background: #eee; }
         .item-info { flex-grow: 1; }
@@ -29,11 +23,7 @@
         .qty-controls { display: flex; align-items: center; }
         .qty-btn { width: 30px; height: 30px; background: #ddd; border: none; border-radius: 5px; cursor: pointer; font-size: 18px; }
         .qty-display { margin: 0 10px; font-weight: bold; width: 20px; text-align: center; }
-
-        /* 底部固定購物車按鈕 */
         .cart-bar { position: sticky; bottom: 20px; margin-top: 20px; }
-        
-        /* 確認明細樣式 */
         .summary-box { background: #f9f9f9; padding: 15px; border-radius: 8px; border: 1px dashed #ccc; margin-bottom: 15px; }
         .warning-text { color: #e74c3c; font-weight: bold; text-align: center; margin: 15px 0; }
     </style>
@@ -41,8 +31,6 @@
 <body>
 
 <div class="app-container">
-
-    <!-- 畫面 1: 登入/基本資訊 -->
     <div id="page-login">
         <h2>📝 預購資料填寫</h2>
         <div class="form-group">
@@ -50,85 +38,70 @@
             <input type="radio" name="userType" value="student" checked onchange="toggleUserForm()"> 校內學生
             <input type="radio" name="userType" value="outsider" onchange="toggleUserForm()"> 校外人員
         </div>
-
         <div id="student-fields">
             <div class="form-group">
                 <label>班級：</label>
                 <input type="text" id="classInfo" placeholder="例如：107">
             </div>
         </div>
-
         <div id="outsider-fields" class="hidden">
             <div class="form-group">
                 <label>聯絡電話：</label>
                 <input type="tel" id="phoneInfo" placeholder="例如：0912345678">
             </div>
         </div>
-
         <div class="form-group">
             <label>姓名：</label>
             <input type="text" id="userName" placeholder="例如：Louis">
         </div>
-        
         <button class="btn" onclick="goToMenu()">下一步：開始點餐</button>
     </div>
 
-    <!-- 畫面 2: 菜單選擇 -->
     <div id="page-menu" class="hidden">
         <h2>🍔 預購菜單</h2>
-        <div id="menu-list">
-            <!-- 菜單會由 JavaScript 動態生成在這裡 -->
-        </div>
+        <div id="menu-list"></div>
         <div class="cart-bar">
             <button class="btn" onclick="goToCart()">🛒 查看購物車 (<span id="cart-count">0</span>)</button>
         </div>
     </div>
 
-    <!-- 畫面 3: 購物車確認 -->
     <div id="page-cart" class="hidden">
         <h2>🛒 你的購物車</h2>
-        <div id="cart-items" class="summary-box">
-            <!-- 購物車內容 -->
-        </div>
+        <div id="cart-items" class="summary-box"></div>
         <h3 style="text-align: right;">總計: $<span id="cart-total">0</span></h3>
         <button class="btn" onclick="goToReview()">確認預購</button>
         <button class="btn btn-secondary" onclick="backToMenu()">繼續點餐</button>
     </div>
 
-    <!-- 畫面 4: 最終確認與送出 -->
     <div id="page-review" class="hidden">
         <h2>📋 最終確認</h2>
-        <div class="summary-box" id="final-summary">
-            <!-- 個人資訊與訂單總覽會印在這裡 -->
-        </div>
-        <p class="warning-text">請確認信息是否正確正確的話，請確認送出</p>
-        
-        <button class="btn" onclick="submitFinalOrder()">確認送出</button>
+        <div class="summary-box" id="final-summary"></div>
+        <p class="warning-text">請確認信息是否正確，正確的話，請確認送出</p>
+        <button class="btn" onclick="submitFinalOrder()" id="submitBtn">確認送出</button>
         <button class="btn btn-secondary" onclick="modifyInfo()">修改信息</button>
     </div>
-
 </div>
 
 <script>
-    // === 這裡就是你的「微型後台」，要加減菜單只要改這個陣列 ===
+    // ⚠️ 這裡要換成你自己的 JSONBin 密鑰！
+    const BIN_ID = '6a032250250b1311c33bdffa'; 
+    const API_KEY = '$2a$10$Ved0Z4ofi5lO5WZ7BG7W9eL3y82JQlNiuyQQYm6qJn6CD5dWZ/Xei';
+
     const menuData = [
         { id: 'm1', name: '招牌大腸包小腸', price: 60, img: 'https://via.placeholder.com/80/FFB6C1/000000?text=Sausage' },
         { id: 'm2', name: '清涼彈珠汽水', price: 35, img: 'https://via.placeholder.com/80/87CEFA/000000?text=Soda' },
         { id: 'm3', name: '現炸脆薯', price: 40, img: 'https://via.placeholder.com/80/FFD700/000000?text=Fries' }
     ];
 
-    // 全域變數儲存資料
     let userInfo = {};
     let cart = {};
 
-    // 畫面 1: 切換身分表單
     function toggleUserForm() {
         const isStudent = document.querySelector('input[name="userType"]:checked').value === 'student';
         document.getElementById('student-fields').classList.toggle('hidden', !isStudent);
         document.getElementById('outsider-fields').classList.toggle('hidden', isStudent);
     }
 
-    // 進入畫面 2: 菜單
     function goToMenu() {
         const type = document.querySelector('input[name="userType"]:checked').value;
         const name = document.getElementById('userName').value.trim();
@@ -140,19 +113,15 @@
         if (type === 'outsider' && !phoneInfo) return alert("請輸入電話！");
 
         userInfo = { type, name, identity: type === 'student' ? `班級: ${classInfo}` : `電話: ${phoneInfo}` };
-
         renderMenu();
         switchPage('page-menu');
     }
 
-    // 渲染菜單
     function renderMenu() {
         const menuList = document.getElementById('menu-list');
         menuList.innerHTML = '';
         menuData.forEach(item => {
-            // 初始化購物車數量
             if (!cart[item.id]) cart[item.id] = { ...item, qty: 0 };
-            
             menuList.innerHTML += `
                 <div class="menu-item">
                     <img src="${item.img}" alt="${item.name}">
@@ -170,38 +139,26 @@
         });
     }
 
-    // 更新數量
     function updateQty(id, change) {
         let newQty = cart[id].qty + change;
         if (newQty < 0) newQty = 0;
         cart[id].qty = newQty;
         document.getElementById(`qty-${id}`).innerText = newQty;
-        
-        // 更新底部購物車數量提示
-        let totalQty = Object.values(cart).reduce((sum, item) => sum + item.qty, 0);
-        document.getElementById('cart-count').innerText = totalQty;
+        document.getElementById('cart-count').innerText = Object.values(cart).reduce((sum, item) => sum + item.qty, 0);
     }
 
-    // 進入畫面 3: 購物車
     function goToCart() {
-        let totalQty = Object.values(cart).reduce((sum, item) => sum + item.qty, 0);
-        if (totalQty === 0) return alert("你還沒有選擇任何餐點喔！");
-
+        if (Object.values(cart).reduce((sum, item) => sum + item.qty, 0) === 0) return alert("你還沒有選擇餐點喔！");
         const cartItemsDiv = document.getElementById('cart-items');
         let html = '';
         let totalAmt = 0;
-
         Object.values(cart).forEach(item => {
             if (item.qty > 0) {
                 let subtotal = item.price * item.qty;
                 totalAmt += subtotal;
-                html += `<div style="display:flex; justify-content:space-between; margin-bottom:5px;">
-                            <span>${item.name} x ${item.qty}</span>
-                            <span>$${subtotal}</span>
-                         </div>`;
+                html += `<div style="display:flex; justify-content:space-between; margin-bottom:5px;"><span>${item.name} x ${item.qty}</span><span>$${subtotal}</span></div>`;
             }
         });
-
         cartItemsDiv.innerHTML = html;
         document.getElementById('cart-total').innerText = totalAmt;
         switchPage('page-cart');
@@ -209,16 +166,9 @@
 
     function backToMenu() { switchPage('page-menu'); }
 
-    // 進入畫面 4: 最終確認
     function goToReview() {
         const summaryDiv = document.getElementById('final-summary');
-        let html = `
-            <p><b>姓名：</b> ${userInfo.name}</p>
-            <p><b>聯絡資訊：</b> ${userInfo.identity}</p>
-            <hr>
-            <p><b>預購內容：</b></p>
-        `;
-        
+        let html = `<p><b>姓名：</b> ${userInfo.name}</p><p><b>聯絡資訊：</b> ${userInfo.identity}</p><hr><p><b>預購內容：</b></p>`;
         let totalAmt = 0;
         Object.values(cart).forEach(item => {
             if (item.qty > 0) {
@@ -227,31 +177,17 @@
             }
         });
         html += `<hr><h3 style="text-align:right; margin:0;">總計金額：$${totalAmt}</h3>`;
-        
         summaryDiv.innerHTML = html;
         switchPage('page-review');
     }
 
-    // 返回修改
     function modifyInfo() { switchPage('page-login'); }
 
-    // 最終送出 (這裡之後要接 JSONBin)
-    function submitFinalOrder() {
-        // 這裡會放置下一階段 fetch(JSONBin) 的程式碼
-        alert("訂單已準備送出！接下來我們要把這筆資料上傳到雲端。");
-    }
-
-    // 工具函數：切換顯示的區塊
-    // ⚠️ 這裡也要換成你自己的 JSONBin 資料
-    const BIN_ID = '6a032250250b1311c33bdffa'; 
-    const API_KEY = '$2a$10$Ved0Z4ofi5lO5WZ7BG7W9eL3y82JQlNiuyQQYm6qJn6CD5dWZ/Xei';
-
     async function submitFinalOrder() {
-        const btn = document.querySelector('.btn');
+        const btn = document.getElementById('submitBtn');
         btn.innerText = "訂單傳送中...";
         btn.disabled = true;
 
-        // 1. 整理這筆訂單的資料
         let orderItems = '';
         let totalAmt = 0;
         Object.values(cart).forEach(item => {
@@ -261,45 +197,32 @@
             }
         });
 
-        const newOrder = {
-            time: new Date().toLocaleTimeString(),
-            name: userInfo.name,
-            identity: userInfo.identity,
-            items: orderItems,
-            total: totalAmt
-        };
+        const newOrder = { time: new Date().toLocaleTimeString(), name: userInfo.name, identity: userInfo.identity, items: orderItems, total: totalAmt };
 
         try {
-            // 2. 先抓取舊訂單
-            const getResp = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
-                headers: { "X-Master-Key": API_KEY }
-            });
+            const getResp = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, { headers: { "X-Master-Key": API_KEY } });
             const oldData = await getResp.json();
             let allOrders = oldData.record || [];
-
-            // 3. 把新訂單加進去
             allOrders.push(newOrder);
 
-            // 4. 更新回資料庫
             const updateResp = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
                 method: 'PUT',
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-Master-Key": API_KEY
-                },
+                headers: { "Content-Type": "application/json", "X-Master-Key": API_KEY },
                 body: JSON.stringify(allOrders)
             });
 
             if (updateResp.ok) {
                 alert("🎉 預購成功！老闆已經收到你的訂單囉！");
-                location.reload(); // 重新整理網頁，給下一個客人點餐
+                location.reload();
             }
         } catch (err) {
             alert("傳送失敗，請稍後再試！");
             btn.innerText = "確認送出";
             btn.disabled = false;
         }
-    } {
+    }
+
+    function switchPage(pageId) {
         document.getElementById('page-login').classList.add('hidden');
         document.getElementById('page-menu').classList.add('hidden');
         document.getElementById('page-cart').classList.add('hidden');

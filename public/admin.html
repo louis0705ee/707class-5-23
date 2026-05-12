@@ -10,7 +10,8 @@
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
         th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
         th { background-color: #f4f4f4; }
-        button { padding: 10px 20px; background: #e74c3c; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        button { padding: 10px 20px; background: #e74c3c; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; }
+        button:hover { opacity: 0.8; }
     </style>
 </head>
 <body>
@@ -34,12 +35,12 @@
 </div>
 
 <script>
-    // ⚠️ 這裡要換成你自己的 JSONBin 資料
-    const BIN_ID = '你的BIN_ID'; 
-    const API_KEY = '你的API_KEY';
+    // ⚠️ 這裡要換成你自己的 JSONBin 密鑰！
+    const BIN_ID = '6a032250250b1311c33bdffa'; 
+    const API_KEY = '$2a$10$Ved0Z4ofi5lO5WZ7BG7W9eL3y82JQlNiuyQQYm6qJn6CD5dWZ/Xei';
 
     async function loadOrders() {
-        document.getElementById('order-list').innerHTML = '<tr><td colspan="4">讀取中...</td></tr>';
+        document.getElementById('order-list').innerHTML = '<tr><td colspan="4" style="text-align:center;">讀取中...</td></tr>';
         
         try {
             const resp = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
@@ -59,14 +60,15 @@
                     </tr>
                 `;
             });
-            document.getElementById('order-list').innerHTML = html || '<tr><td colspan="4">目前還沒有訂單喔！</td></tr>';
+            document.getElementById('order-list').innerHTML = html || '<tr><td colspan="4" style="text-align:center;">目前還沒有訂單喔！</td></tr>';
         } catch (err) {
-            alert('讀取失敗，請檢查 API Key 或網路連線');
+            alert('讀取失敗，請檢查 API Key 或是網路連線');
         }
     }
 
     // 網頁打開自動讀取一次
     loadOrders();
 </script>
+
 </body>
 </html>
