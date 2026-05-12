@@ -242,7 +242,64 @@
     }
 
     // 工具函數：切換顯示的區塊
-    function switchPage(pageId) {
+    // ⚠️ 這裡也要換成你自己的 JSONBin 資料
+    const BIN_ID = '6a032250250b1311c33bdffa'; 
+    const API_KEY = '$2a$10$Ved0Z4ofi5lO5WZ7BG7W9eL3y82JQlNiuyQQYm6qJn6CD5dWZ/Xei';
+
+    async function submitFinalOrder() {
+        const btn = document.querySelector('.btn');
+        btn.innerText = "訂單傳送中...";
+        btn.disabled = true;
+
+        // 1. 整理這筆訂單的資料
+        let orderItems = '';
+        let totalAmt = 0;
+        Object.values(cart).forEach(item => {
+            if (item.qty > 0) {
+                orderItems += `${item.name} x${item.qty}<br>`;
+                totalAmt += (item.price * item.qty);
+            }
+        });
+
+        const newOrder = {
+            time: new Date().toLocaleTimeString(),
+            name: userInfo.name,
+            identity: userInfo.identity,
+            items: orderItems,
+            total: totalAmt
+        };
+
+        try {
+            // 2. 先抓取舊訂單
+            const getResp = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
+                headers: { "X-Master-Key": API_KEY }
+            });
+            const oldData = await getResp.json();
+            let allOrders = oldData.record || [];
+
+            // 3. 把新訂單加進去
+            allOrders.push(newOrder);
+
+            // 4. 更新回資料庫
+            const updateResp = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
+                method: 'PUT',
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-Master-Key": API_KEY
+                },
+                body: JSON.stringify(allOrders)
+            });
+
+            if (updateResp.ok) {
+                alert("🎉 預購成功！老闆已經收到你的訂單囉！");
+                location.reload(); // 重新整理網頁，給下一個客人點餐
+            }
+        } catch (err) {
+            alert("傳送失敗，請稍後再試！");
+            btn.innerText = "確認送出";
+            btn.disabled = false;
+        }
+    } {
         document.getElementById('page-login').classList.add('hidden');
         document.getElementById('page-menu').classList.add('hidden');
         document.getElementById('page-cart').classList.add('hidden');
