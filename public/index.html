@@ -24,8 +24,8 @@
         /* 表單與按鈕現代化 */
         .form-group { margin-bottom: 18px; }
         label { display: block; margin-bottom: 8px; font-weight: 600; color: #57606f; font-size: 0.95rem; }
-        input[type="text"], input[type="tel"] { width: 100%; padding: 12px 15px; border: 2px solid #dfe4ea; border-radius: 10px; box-sizing: border-box; font-size: 1rem; transition: 0.3s; outline: none; }
-        input[type="text"]:focus, input[type="tel"]:focus { border-color: var(--primary); }
+        input[type="text"], input[type="tel"], input[type="number"] { width: 100%; padding: 12px 15px; border: 2px solid #dfe4ea; border-radius: 10px; box-sizing: border-box; font-size: 1rem; transition: 0.3s; outline: none; }
+        input[type="text"]:focus, input[type="tel"]:focus, input[type="number"]:focus { border-color: var(--primary); }
         
         .btn { width: 100%; padding: 14px; background: linear-gradient(135deg, #ff4757, #ff6b81); color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 15px; box-shadow: 0 4px 15px rgba(255, 71, 87, 0.3); transition: transform 0.2s, box-shadow 0.2s; }
         .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(255, 71, 87, 0.4); }
@@ -54,6 +54,10 @@
         .summary-box { background: #f8f9fa; padding: 20px; border-radius: 15px; border: 1px dashed #ced6e0; margin-bottom: 20px; }
         .summary-item { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 1.05rem; }
         .warning-text { color: var(--primary); font-weight: bold; text-align: center; margin: 15px 0; }
+        
+        /* IG 提示區塊 */
+        .ig-notice { background: #ffeaa7; padding: 12px; border-radius: 10px; margin-top: 10px; font-size: 0.9rem; line-height: 1.5; color: #2d3436; border: 1px solid #fdcb6e; }
+        .ig-notice a { color: #e1306c; font-weight: bold; text-decoration: none; display: inline-block; margin-top: 5px; }
     </style>
 </head>
 <body>
@@ -69,19 +73,39 @@
                 <label style="font-weight:normal;"><input type="radio" name="userType" value="outsider" onchange="toggleUserForm()"> 校外人員</label>
             </div>
         </div>
+        
+        <!-- 學生專屬欄位 -->
         <div id="student-fields">
-            <div class="form-group"><label>班級 (例如: 107)</label><input type="text" id="classInfo" placeholder="請輸入班級"></div>
+            <div style="display: flex; gap: 10px;">
+                <div class="form-group" style="flex: 1;"><label>班級 (如: 107)</label><input type="text" id="classInfo" placeholder="請輸入班級"></div>
+                <div class="form-group" style="flex: 1;"><label>座號</label><input type="number" id="seatInfo" placeholder="請輸入座號"></div>
+            </div>
         </div>
+        
+        <!-- 校外專屬欄位 -->
         <div id="outsider-fields" class="hidden">
             <div class="form-group"><label>聯絡電話</label><input type="tel" id="phoneInfo" placeholder="請輸入您的手機號碼"></div>
         </div>
+        
+        <!-- 共同欄位 -->
         <div class="form-group"><label>您的姓名</label><input type="text" id="userName" placeholder="請輸入姓名"></div>
+        
+        <!-- 新增：IG 欄位與追蹤提示 -->
+        <div class="form-group">
+            <label>Instagram 帳號 (必填)</label>
+            <input type="text" id="igInfo" placeholder="例如: louis_chen_0705">
+            <div class="ig-notice">
+                📢 <b>請麻煩追蹤我們的班帳以確保確認信息可以傳送！</b><br>
+                👉 <a href="https://www.instagram.com/twlmsh707" target="_blank">點我追蹤 @twlmsh707</a>
+            </div>
+        </div>
+
         <button class="btn" onclick="goToMenu()">開始點餐 🚀</button>
     </div>
 
     <!-- 畫面 2: 菜單選擇 -->
     <div id="page-menu" class="hidden">
-        <h2>🍔 本日嚴選菜單</h2>
+        <h2>🍔 預購菜單</h2>
         <div id="menu-list"><p style="text-align:center; color:#747d8c;">美味載入中，請稍候...</p></div>
         <div class="cart-bar"><button class="btn" onclick="goToCart()">🛒 查看購物車 (<span id="cart-count">0</span>)</button></div>
     </div>
@@ -136,12 +160,24 @@
         const type = document.querySelector('input[name="userType"]:checked').value;
         const name = document.getElementById('userName').value.trim();
         const classInfo = document.getElementById('classInfo').value.trim();
+        const seatInfo = document.getElementById('seatInfo').value.trim();
         const phoneInfo = document.getElementById('phoneInfo').value.trim();
-        if (!name) return alert("請輸入姓名！");
-        if (type === 'student' && !classInfo) return alert("請輸入班級！");
-        if (type === 'outsider' && !phoneInfo) return alert("請輸入電話！");
+        const igInfo = document.getElementById('igInfo').value.trim();
 
-        userInfo = { type, name, identity: type === 'student' ? `班級: ${classInfo}` : `電話: ${phoneInfo}` };
+        // 檢查防呆機制
+        if (!name) return alert("請輸入姓名！");
+        if (!igInfo) return alert("請輸入您的 IG 帳號以便聯絡喔！");
+        
+        let identityStr = '';
+        if (type === 'student') {
+            if (!classInfo || !seatInfo) return alert("校內同學請輸入班級與座號！");
+            identityStr = `班級: ${classInfo} | 座號: ${seatInfo}<br>IG: ${igInfo}`;
+        } else {
+            if (!phoneInfo) return alert("請輸入聯絡電話！");
+            identityStr = `電話: ${phoneInfo}<br>IG: ${igInfo}`;
+        }
+
+        userInfo = { type, name, identity: identityStr };
         switchPage('page-menu');
     }
 
@@ -151,13 +187,9 @@
         if (menuData.length === 0) { menuList.innerHTML = '<p style="text-align:center;">老闆還沒準備好菜單喔！</p>'; return; }
 
         menuData.forEach(item => {
-            // 判斷最終結帳價格 (有預購價就用預購價，沒有就用原價)
             let activePrice = (item.prePrice && item.prePrice > 0) ? item.prePrice : item.price;
-            
-            // 初始化購物車
             if (!cart[item.id]) cart[item.id] = { name: item.name, price: activePrice, qty: 0 };
             
-            // 決定價格顯示的 HTML 邏輯
             let priceHtml = '';
             if (item.prePrice && item.prePrice > 0) {
                 priceHtml = `<span class="old-price">$${item.price}</span><span class="new-price">$${item.prePrice}</span>`;
@@ -213,7 +245,7 @@
 
     function goToReview() {
         const summaryDiv = document.getElementById('final-summary');
-        let html = `<p style="margin-top:0;"><b>訂購人：</b> ${userInfo.name}</p><p><b>聯絡資訊：</b> ${userInfo.identity}</p><hr style="border:0; border-top:1px dashed #ccc; margin:15px 0;"><p><b>餐點明細：</b></p>`;
+        let html = `<p style="margin-top:0;"><b>訂購人：</b> ${userInfo.name}</p><p><b>聯絡資訊：</b><br>${userInfo.identity}</p><hr style="border:0; border-top:1px dashed #ccc; margin:15px 0;"><p><b>餐點明細：</b></p>`;
         let totalAmt = 0;
         Object.values(cart).forEach(item => {
             if (item.qty > 0) {
