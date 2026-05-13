@@ -3,19 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🍔 園遊會後台 - 老闆專用</title>
+    <title>🍔 園遊會後台 </title>
     <style>
         body { font-family: "Microsoft JhengHei", sans-serif; background: #2c3e50; color: white; margin: 0; padding: 20px; }
         
-        /* 登入畫面樣式 */
         #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #2c3e50; display: flex; justify-content: center; align-items: center; z-index: 100; }
         .login-box { background: white; color: #333; padding: 40px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center; width: 300px; }
         .login-box input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; }
         .login-btn { width: 100%; padding: 12px; background: #e74c3c; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; }
         .login-btn:hover { background: #c0392b; }
 
-        /* 後台主體樣式 */
-        #admin-panel { display: none; } /* 登入前隱藏 */
+        #admin-panel { display: none; } 
         .container { max-width: 1000px; margin: 0 auto 30px auto; background: white; color: black; padding: 25px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
         table { width: 100%; border-collapse: collapse; margin-top: 15px; }
         th, td { border: 1px solid #eee; padding: 12px; text-align: center; }
@@ -31,7 +29,6 @@
 </head>
 <body>
 
-<!-- 🔒 登入畫面 -->
 <div id="login-screen">
     <div class="login-box">
         <h2>🧑‍💼 管理員登入</h2>
@@ -42,10 +39,8 @@
     </div>
 </div>
 
-<!-- 📊 後台系統 (登入後才會顯示) -->
 <div id="admin-panel">
     
-    <!-- 區塊 1：訂單管理 -->
     <div class="container">
         <div style="display: flex; justify-content: space-between; align-items: center;">
             <h2 style="margin: 0;">📊 園遊會訂單管理</h2>
@@ -57,7 +52,6 @@
         </table>
     </div>
 
-    <!-- 區塊 2：菜單管理 -->
     <div class="container">
         <h2>🛠️ 菜單管理 (價格與上下架)</h2>
         <p style="color: #e74c3c; font-size: 14px;">💡 提示：如果輸入了「預購價」，客人的網頁就會自動把原價劃掉，顯示紅色的預購特價！如果只想顯示單一價格，請把預購價「留空」。</p>
@@ -82,36 +76,37 @@
 </div>
 
 <script>
-    // ⚠️⚠️⚠️ 記得換成你自己的三把鑰匙！ ⚠️⚠️⚠️
-    const API_KEY = '$2a$10$Ved0Z4ofi5lO5WZ7BG7W9eL3y82JQlNiuyQQYm6qJn6CD5dWZ/Xei';
-    const ORDER_BIN_ID = '6a032250250b1311c33bdffa'; 
-    const MENU_BIN_ID = '6a0328ab250b1311c33c0ecb'; 
-
     let currentMenu = [];
 
-    // --- 🔐 簡單的登入系統驗證 ---
-    function checkLogin() {
+    async function checkLogin() {
         const user = document.getElementById('adminUser').value;
         const pass = document.getElementById('adminPass').value;
         
-        // 驗證你專屬的帳號密碼
-        if (user === 'twlmsh707' && pass === 'LMSH707') {
-            document.getElementById('login-screen').style.display = 'none'; // 隱藏登入畫面
-            document.getElementById('admin-panel').style.display = 'block'; // 顯示後台
-            loadOrders();
-            loadMenu();
-        } else {
-            document.getElementById('errorMsg').style.display = 'block';
+        try {
+            const resp = await fetch('/api/admin-login', {
+                method: 'POST',
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ user, pass })
+            });
+            
+            if (resp.ok) {
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('admin-panel').style.display = 'block';
+                loadOrders();
+                loadMenu();
+            } else {
+                document.getElementById('errorMsg').style.display = 'block';
+            }
+        } catch (e) {
+            alert("連線錯誤");
         }
     }
 
-    // --- 訂單讀取功能 ---
     async function loadOrders() {
         document.getElementById('order-list').innerHTML = '<tr><td colspan="4">讀取中...</td></tr>';
         try {
-            const resp = await fetch(`https://api.jsonbin.io/v3/b/${ORDER_BIN_ID}/latest`, { headers: { "X-Master-Key": API_KEY } });
-            const data = await resp.json();
-            const orders = data.record || [];
+            const resp = await fetch('/api/orders');
+            const orders = await resp.json();
             let html = '';
             orders.forEach(order => {
                 html += `<tr><td>${order.time}</td><td><b>${order.name}</b><br><small>${order.identity}</small></td><td style="text-align:left;">${order.items}</td><td style="color:#e74c3c; font-weight:bold; font-size:1.1em;">$${order.total}</td></tr>`;
@@ -120,13 +115,11 @@
         } catch (err) { alert('訂單讀取失敗'); }
     }
 
-    // --- 菜單管理功能 ---
     async function loadMenu() {
         document.getElementById('menu-edit-list').innerHTML = '<tr><td colspan="6">菜單讀取中...</td></tr>';
         try {
-            const resp = await fetch(`https://api.jsonbin.io/v3/b/${MENU_BIN_ID}/latest`, { headers: { "X-Master-Key": API_KEY } });
-            const data = await resp.json();
-            currentMenu = data.record || [];
+            const resp = await fetch('/api/menu');
+            currentMenu = await resp.json();
             renderMenuEditor();
         } catch (err) { alert('菜單讀取失敗'); }
     }
@@ -134,7 +127,6 @@
     function renderMenuEditor() {
         let html = '';
         currentMenu.forEach((item, index) => {
-            // 如果沒有 prePrice 屬性，就顯示空值
             let prePriceValue = (item.prePrice && item.prePrice > 0) ? item.prePrice : ''; 
             
             html += `
@@ -162,13 +154,12 @@
     }
 
     async function saveMenuToCloud() {
-        // 從表格把修改後的資料收集起來
         const newMenuData = currentMenu.map((item, index) => {
             return {
                 id: item.id,
                 name: document.getElementById(`name-${index}`).value,
                 price: parseInt(document.getElementById(`price-${index}`).value) || 0,
-                prePrice: parseInt(document.getElementById(`prePrice-${index}`).value) || 0, // 抓取預購價
+                prePrice: parseInt(document.getElementById(`prePrice-${index}`).value) || 0,
                 img: document.getElementById(`img-${index}`).value
             };
         });
@@ -177,14 +168,16 @@
         btn.innerText = "儲存中...";
         
         try {
-            const resp = await fetch(`https://api.jsonbin.io/v3/b/${MENU_BIN_ID}`, {
+            const resp = await fetch('/api/menu', {
                 method: 'PUT',
-                headers: { "Content-Type": "application/json", "X-Master-Key": API_KEY },
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(newMenuData)
             });
             if (resp.ok) {
                 alert("✅ 菜單更新成功！客人的畫面已經同步最新特價了！");
-                loadMenu(); // 重新讀取確保畫面正確
+                loadMenu(); 
+            } else {
+                throw new Error("Network response error");
             }
         } catch (e) { alert("儲存失敗！"); }
         btn.innerText = "💾 儲存菜單到雲端";
