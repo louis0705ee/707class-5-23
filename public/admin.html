@@ -1,73 +1,103 @@
-<!-- admin.html (請完全覆蓋) -->
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> 園遊會</title>
+    <title>後台管理系統</title>
     <style>
-        body { font-family: "Microsoft JhengHei", sans-serif; background: #2c3e50; color: white; margin: 0; padding: 20px; }
+        :root {
+            --bg-color: #f5f5f7;
+            --card-bg: #ffffff;
+            --text-main: #1d1d1f;
+            --primary: #0071e3;
+            --danger: #ff3b30;
+            --success: #34c759;
+        }
+        body { font-family: -apple-system, BlinkMacSystemFont, "PingFang TC", "Microsoft JhengHei", sans-serif; background: var(--bg-color); color: var(--text-main); margin: 0; padding: 20px; -webkit-font-smoothing: antialiased; }
         
-        #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #2c3e50; display: flex; justify-content: center; align-items: center; z-index: 100; }
-        .login-box { background: white; color: #333; padding: 40px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center; width: 300px; }
-        .login-box input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; }
-        .login-btn { width: 100%; padding: 12px; background: #e74c3c; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; }
-        .login-btn:hover { background: #c0392b; }
+        /* 毛玻璃登入畫面 */
+        #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); display: flex; justify-content: center; align-items: center; z-index: 100; }
+        .login-box { background: rgba(255,255,255,0.9); padding: 40px; border-radius: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); text-align: center; width: 320px; border: 1px solid rgba(255,255,255,0.5); }
+        .login-box h2 { margin-top: 0; font-weight: 700; font-size: 1.5rem; }
+        .login-box input { width: 100%; padding: 14px; margin: 10px 0; border: 1px solid #d2d2d7; background: rgba(255,255,255,0.8); border-radius: 12px; box-sizing: border-box; font-size: 1rem; transition: 0.3s; outline: none; }
+        .login-box input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(0,113,227,0.1); }
+        .login-btn { width: 100%; padding: 14px; background: var(--text-main); color: white; border: none; border-radius: 12px; font-weight: 600; cursor: pointer; margin-top: 15px; font-size: 1.05rem; transition: 0.2s; }
+        .login-btn:hover { background: #333; transform: scale(0.98); }
 
-        #admin-panel { display: none; } 
-        .container { max-width: 1000px; margin: 0 auto 30px auto; background: white; color: black; padding: 25px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th, td { border: 1px solid #eee; padding: 12px; text-align: center; }
-        th { background-color: #f8f9fa; color: #333; }
-        td input { padding: 8px; width: 90%; box-sizing: border-box; border: 1px solid #ddd; border-radius: 5px; text-align: center; }
+        #admin-panel { display: none; max-width: 1100px; margin: 0 auto; } 
         
-        button { padding: 10px 15px; background: #3498db; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; margin-right: 5px; transition: 0.2s; }
-        button.red { background: #e74c3c; }
-        button.green { background: #2ecc71; }
-        button:hover { opacity: 0.8; }
-        .menu-img-preview { width: 50px; height: 50px; object-fit: cover; border-radius: 5px; }
+        .header-title { font-weight: 700; font-size: 1.8rem; margin: 20px 0 30px 0; }
+        
+        .container { background: var(--card-bg); padding: 30px; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.04); margin-bottom: 30px; border: 1px solid #fff; }
+        .container-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .container-header h2 { margin: 0; font-size: 1.4rem; font-weight: 600; }
+        
+        /* 現代化無邊框表格 */
+        table { width: 100%; border-collapse: collapse; text-align: left; }
+        th { padding: 15px; color: #86868b; font-weight: 600; font-size: 0.9rem; border-bottom: 2px solid #f5f5f7; text-transform: uppercase; letter-spacing: 0.5px; }
+        td { padding: 18px 15px; border-bottom: 1px solid #f5f5f7; vertical-align: middle; }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: #fafafa; }
+        
+        td input { padding: 10px; width: 90%; box-sizing: border-box; border: 1px solid #e5e5ea; border-radius: 8px; font-size: 0.95rem; background: #fcfcfc; transition: 0.2s; outline: none; }
+        td input:focus { border-color: var(--primary); background: #fff; }
+        
+        button { padding: 10px 18px; background: var(--text-main); color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 0.95rem; font-weight: 600; margin-right: 8px; transition: 0.2s; }
+        button.red { background: rgba(255, 59, 48, 0.1); color: var(--danger); }
+        button.red:hover { background: var(--danger); color: white; }
+        button.green { background: var(--success); color: white; }
+        button.green:hover { filter: brightness(1.1); }
+        button:hover { opacity: 0.9; transform: translateY(-1px); }
+        
+        .menu-img-preview { width: 56px; height: 56px; object-fit: cover; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .tag { font-size: 0.8rem; padding: 4px 8px; background: #f5f5f7; border-radius: 6px; color: #86868b; font-weight: 600; }
     </style>
 </head>
 <body>
 
 <div id="login-screen">
     <div class="login-box">
-        <h2>🧑‍💼 管理員登入</h2>
-        <input type="text" id="adminUser" placeholder="請輸入帳號">
-        <input type="password" id="adminPass" placeholder="請輸入密碼">
-        <button class="login-btn" onclick="checkLogin()">登入系統</button>
-        <p id="errorMsg" style="color:red; display:none; font-size:14px;">帳號或密碼錯誤！</p>
+        <h2>管理員登入</h2>
+        <input type="text" id="adminUser" placeholder="管理員帳號">
+        <input type="password" id="adminPass" placeholder="管理員密碼">
+        <button class="login-btn" onclick="checkLogin()">登入</button>
+        <p id="errorMsg" style="color:var(--danger); display:none; font-size:14px; margin-top:15px; font-weight:600;">驗證失敗，請重新輸入</p>
     </div>
 </div>
 
 <div id="admin-panel">
+    <div class="header-title">園遊會中央控制台</div>
     
     <div class="container">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-            <h2 style="margin: 0;">📊 園遊會訂單管理</h2>
-            <button onclick="loadOrders()">🔄 重新整理最新訂單</button>
+        <div class="container-header">
+            <h2>即時訂單管理</h2>
+            <button onclick="loadOrders()" style="background:#f5f5f7; color:var(--text-main);">↻ 重新整理</button>
         </div>
         <table>
-            <thead><tr><th>時間</th><th>姓名 / 聯絡方式</th><th>餐點明細</th><th>總金額</th><th width="80">操作</th></tr></thead>
+            <thead><tr><th width="100">下單時間</th><th>顧客資訊</th><th>餐點明細</th><th width="120">應收金額</th><th width="90">操作</th></tr></thead>
             <tbody id="order-list"></tbody>
         </table>
     </div>
 
     <div class="container">
-        <h2>🛠️ 菜單管理 (價格與上下架)</h2>
-        <p style="color: #e74c3c; font-size: 14px;">💡 提示：如果輸入了「預購價」，客人的網頁就會自動把原價劃掉，顯示紅色的預購特價！如果只想顯示單一價格，請把預購價「留空」。</p>
-        <button class="green" onclick="addNewItemRow()" style="margin-bottom: 10px;">➕ 新增一項商品</button>
-        <button onclick="saveMenuToCloud()" style="margin-bottom: 10px;">💾 儲存菜單到雲端</button>
+        <div class="container-header">
+            <h2>商品與菜單設定</h2>
+            <div>
+                <button class="green" onclick="addNewItemRow()">＋ 新增商品</button>
+                <button onclick="saveMenuToCloud()" style="background:var(--primary)">保存發布</button>
+            </div>
+        </div>
+        <p style="color: #86868b; font-size: 14px; margin-top:-10px; margin-bottom:20px;">💡 若不需特價，請將「預購價」留空即可。</p>
         
         <table>
             <thead>
                 <tr>
-                    <th width="80">圖片預覽</th>
+                    <th width="70">預覽</th>
                     <th>商品名稱</th>
-                    <th width="100">原價 ($)</th>
-                    <th width="100">預購價 ($)</th>
-                    <th>圖片網址 (URL)</th>
-                    <th width="80">操作</th>
+                    <th width="120">原價 ($)</th>
+                    <th width="120">預購價 ($)</th>
+                    <th>圖片連結 (URL)</th>
+                    <th width="90">操作</th>
                 </tr>
             </thead>
             <tbody id="menu-edit-list"></tbody>
@@ -83,6 +113,8 @@
     async function checkLogin() {
         const user = document.getElementById('adminUser').value;
         const pass = document.getElementById('adminPass').value;
+        const btn = document.querySelector('.login-btn');
+        btn.innerText = '驗證中...';
         
         try {
             const resp = await fetch('/api/admin-login', {
@@ -92,21 +124,25 @@
             });
             
             if (resp.ok) {
-                document.getElementById('login-screen').style.display = 'none';
-                document.getElementById('admin-panel').style.display = 'block';
-                loadOrders();
-                loadMenu();
+                document.getElementById('login-screen').style.opacity = '0';
+                setTimeout(() => {
+                    document.getElementById('login-screen').style.display = 'none';
+                    document.getElementById('admin-panel').style.display = 'block';
+                    loadOrders();
+                    loadMenu();
+                }, 300);
             } else {
                 document.getElementById('errorMsg').style.display = 'block';
+                btn.innerText = '登入';
             }
         } catch (e) {
             alert("連線錯誤");
+            btn.innerText = '登入';
         }
     }
 
-    // --- 訂單讀取與渲染 ---
     async function loadOrders() {
-        document.getElementById('order-list').innerHTML = '<tr><td colspan="5">讀取中...</td></tr>';
+        document.getElementById('order-list').innerHTML = '<tr><td colspan="5" style="text-align:center; padding:30px; color:#86868b;">資料同步中...</td></tr>';
         try {
             const resp = await fetch('/api/orders');
             currentOrders = await resp.json();
@@ -118,25 +154,22 @@
         let html = '';
         currentOrders.forEach((order, index) => {
             html += `<tr>
-                <td>${order.time}</td>
-                <td><b>${order.name}</b><br><small>${order.identity}</small></td>
-                <td style="text-align:left;">${order.items}</td>
-                <td style="color:#e74c3c; font-weight:bold; font-size:1.1em;">$${order.total}</td>
+                <td><span class="tag">${order.time}</span></td>
+                <td><b style="font-size:1.1rem">${order.name}</b><br><small style="color:#86868b; line-height:1.5; display:inline-block; margin-top:4px;">${order.identity}</small></td>
+                <td><div style="line-height:1.6">${order.items}</div></td>
+                <td><span style="color:var(--text-main); font-weight:800; font-size:1.2rem;">$${order.total}</span></td>
                 <td><button class="red" onclick="deleteOrder(${index})">刪除</button></td>
             </tr>`;
         });
-        document.getElementById('order-list').innerHTML = html || '<tr><td colspan="5">目前還沒有訂單喔</td></tr>';
+        document.getElementById('order-list').innerHTML = html || '<tr><td colspan="5" style="text-align:center; padding:30px; color:#86868b;">目前尚無訂單資料</td></tr>';
     }
 
-    // --- 刪除單筆訂單 ---
     async function deleteOrder(index) {
-        if(!confirm("⚠️ 確定要刪除這筆訂單嗎？（刪除後無法復原）")) return;
+        if(!confirm("確定要刪除這筆訂單嗎？刪除後將無法復原。")) return;
         
-        // 從本機陣列中移除
         currentOrders.splice(index, 1);
-        renderOrders(); // 先更新畫面
+        renderOrders(); 
         
-        // 同步覆蓋到雲端
         try {
             const resp = await fetch('/api/orders', {
                 method: 'PUT',
@@ -145,14 +178,13 @@
             });
             if (!resp.ok) throw new Error();
         } catch (e) {
-            alert("刪除失敗，請重新整理網頁");
-            loadOrders(); // 失敗則重新讀取
+            alert("刪除同步失敗，將重新載入最新資料");
+            loadOrders(); 
         }
     }
 
-    // --- 菜單管理 ---
     async function loadMenu() {
-        document.getElementById('menu-edit-list').innerHTML = '<tr><td colspan="6">菜單讀取中...</td></tr>';
+        document.getElementById('menu-edit-list').innerHTML = '<tr><td colspan="6" style="text-align:center; padding:30px; color:#86868b;">資料同步中...</td></tr>';
         try {
             const resp = await fetch('/api/menu');
             currentMenu = await resp.json();
@@ -164,19 +196,20 @@
         let html = '';
         currentMenu.forEach((item, index) => {
             let prePriceValue = (item.prePrice && item.prePrice > 0) ? item.prePrice : ''; 
+            let imgSrc = item.img ? item.img : 'https://via.placeholder.com/56/f5f5f7/86868b?text=Img';
             
             html += `
                 <tr id="row-${index}">
-                    <td><img src="${item.img}" class="menu-img-preview" onerror="this.src='https://via.placeholder.com/50?text=Error'"></td>
+                    <td><img src="${imgSrc}" class="menu-img-preview" onerror="this.src='https://via.placeholder.com/56/f5f5f7/86868b?text=Err'"></td>
                     <td><input type="text" value="${item.name}" id="name-${index}"></td>
                     <td><input type="number" value="${item.price}" id="price-${index}"></td>
-                    <td><input type="number" value="${prePriceValue}" id="prePrice-${index}" placeholder="無則留空"></td>
-                    <td><input type="text" value="${item.img}" id="img-${index}" placeholder="請貼上圖片網址" style="text-align:left;"></td>
-                    <td><button class="red" onclick="removeItem(${index})">刪除</button></td>
+                    <td><input type="number" value="${prePriceValue}" id="prePrice-${index}" placeholder="留空無特價"></td>
+                    <td><input type="text" value="${item.img}" id="img-${index}" placeholder="圖片網址"></td>
+                    <td><button class="red" onclick="removeItem(${index})">移除</button></td>
                 </tr>
             `;
         });
-        document.getElementById('menu-edit-list').innerHTML = html;
+        document.getElementById('menu-edit-list').innerHTML = html || '<tr><td colspan="6" style="text-align:center; padding:30px; color:#86868b;">尚無商品，請點擊上方按鈕新增</td></tr>';
     }
 
     function addNewItemRow() {
@@ -201,7 +234,9 @@
         });
 
         const btn = event.target;
-        btn.innerText = "儲存中...";
+        const originalText = btn.innerText;
+        btn.innerText = "處理中...";
+        btn.disabled = true;
         
         try {
             const resp = await fetch('/api/menu', {
@@ -210,13 +245,15 @@
                 body: JSON.stringify(newMenuData)
             });
             if (resp.ok) {
-                alert("✅ 菜單更新成功！客人的畫面已經同步最新特價了！");
+                alert("發布成功！前台菜單已更新。");
                 loadMenu(); 
             } else {
-                throw new Error("Network response error");
+                throw new Error();
             }
-        } catch (e) { alert("儲存失敗！"); }
-        btn.innerText = "💾 儲存菜單到雲端";
+        } catch (e) { alert("儲存失敗，請檢查網路連線"); }
+        
+        btn.innerText = originalText;
+        btn.disabled = false;
     }
 </script>
 </body>
