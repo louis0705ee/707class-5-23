@@ -146,7 +146,7 @@
     function renderMenu() {
         const menuList = document.getElementById('menu-list');
         menuList.innerHTML = '';
-        if (menuData.length === 0) { menuList.innerHTML = '<p style="text-align:center;">餐點預購以送出（請留意短信或ig私信來再次確認信息是否正確）</p>'; return; }
+        if (menuData.length === 0) { menuList.innerHTML = '<p style="text-align:center;">商品準備中...</p>'; return; }
 
         menuData.forEach((item, index) => {
             let activePrice = (item.prePrice && item.prePrice > 0) ? item.prePrice : item.price;
