@@ -2,55 +2,41 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>後台管理系統</title>
     <style>
-        :root {
-            --bg-color: #f5f5f7;
-            --card-bg: #ffffff;
-            --text-main: #1d1d1f;
-            --primary: #0071e3;
-            --danger: #ff3b30;
-            --success: #34c759;
-        }
-        body { font-family: -apple-system, BlinkMacSystemFont, "PingFang TC", "Microsoft JhengHei", sans-serif; background: var(--bg-color); color: var(--text-main); margin: 0; padding: 20px; -webkit-font-smoothing: antialiased; }
+        :root { --bg-color: #f5f5f7; --card-bg: #ffffff; --text-main: #1d1d1f; --primary: #0071e3; --danger: #ff3b30; --success: #34c759; }
+        html { -webkit-text-size-adjust: 100%; font-size: 16px; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "PingFang TC", "Microsoft JhengHei", sans-serif; background: var(--bg-color); color: var(--text-main); margin: 0; padding: 20px; }
         
-        /* 毛玻璃登入畫面 */
-        #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); display: flex; justify-content: center; align-items: center; z-index: 100; }
-        .login-box { background: rgba(255,255,255,0.9); padding: 40px; border-radius: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); text-align: center; width: 320px; border: 1px solid rgba(255,255,255,0.5); }
-        .login-box h2 { margin-top: 0; font-weight: 700; font-size: 1.5rem; }
-        .login-box input { width: 100%; padding: 14px; margin: 10px 0; border: 1px solid #d2d2d7; background: rgba(255,255,255,0.8); border-radius: 12px; box-sizing: border-box; font-size: 1rem; transition: 0.3s; outline: none; }
-        .login-box input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(0,113,227,0.1); }
-        .login-btn { width: 100%; padding: 14px; background: var(--text-main); color: white; border: none; border-radius: 12px; font-weight: 600; cursor: pointer; margin-top: 15px; font-size: 1.05rem; transition: 0.2s; }
-        .login-btn:hover { background: #333; transform: scale(0.98); }
+        #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); backdrop-filter: blur(20px); display: flex; justify-content: center; align-items: center; z-index: 100; }
+        .login-box { background: rgba(255,255,255,0.9); padding: 40px; border-radius: 24px; text-align: center; width: 90%; max-width: 320px; }
+        .login-box input { width: 100%; padding: 14px; margin: 10px 0; border: 1px solid #d2d2d7; border-radius: 12px; outline: none; }
+        .login-btn { width: 100%; padding: 14px; background: var(--text-main); color: white; border: none; border-radius: 12px; cursor: pointer; margin-top: 15px; }
 
         #admin-panel { display: none; max-width: 1100px; margin: 0 auto; } 
+        .header-title { font-weight: 700; font-size: 1.8rem; margin: 10px 0 30px 0; }
+        .container { background: var(--card-bg); padding: 30px; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.04); margin-bottom: 30px; }
+        .container-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap:10px;}
+        .container-header h2 { margin: 0; font-size: 1.4rem; }
         
-        .header-title { font-weight: 700; font-size: 1.8rem; margin: 20px 0 30px 0; }
-        
-        .container { background: var(--card-bg); padding: 30px; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.04); margin-bottom: 30px; border: 1px solid #fff; }
-        .container-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .container-header h2 { margin: 0; font-size: 1.4rem; font-weight: 600; }
-        
-        /* 現代化無邊框表格 */
         table { width: 100%; border-collapse: collapse; text-align: left; }
-        th { padding: 15px; color: #86868b; font-weight: 600; font-size: 0.9rem; border-bottom: 2px solid #f5f5f7; text-transform: uppercase; letter-spacing: 0.5px; }
-        td { padding: 18px 15px; border-bottom: 1px solid #f5f5f7; vertical-align: middle; }
-        tr:last-child td { border-bottom: none; }
-        tr:hover td { background: #fafafa; }
+        th { padding: 15px; color: #86868b; font-size: 0.9rem; border-bottom: 2px solid #f5f5f7; }
+        td { padding: 15px; border-bottom: 1px solid #f5f5f7; vertical-align: middle; }
+        td input { padding: 10px; width: 95%; box-sizing: border-box; border: 1px solid #e5e5ea; border-radius: 8px; }
         
-        td input { padding: 10px; width: 90%; box-sizing: border-box; border: 1px solid #e5e5ea; border-radius: 8px; font-size: 0.95rem; background: #fcfcfc; transition: 0.2s; outline: none; }
-        td input:focus { border-color: var(--primary); background: #fff; }
-        
-        button { padding: 10px 18px; background: var(--text-main); color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 0.95rem; font-weight: 600; margin-right: 8px; transition: 0.2s; }
+        button { padding: 10px 15px; background: var(--text-main); color: white; border: none; border-radius: 10px; cursor: pointer; margin-right: 5px; }
         button.red { background: rgba(255, 59, 48, 0.1); color: var(--danger); }
-        button.red:hover { background: var(--danger); color: white; }
         button.green { background: var(--success); color: white; }
-        button.green:hover { filter: brightness(1.1); }
-        button:hover { opacity: 0.9; transform: translateY(-1px); }
         
-        .menu-img-preview { width: 56px; height: 56px; object-fit: cover; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        .tag { font-size: 0.8rem; padding: 4px 8px; background: #f5f5f7; border-radius: 6px; color: #86868b; font-weight: 600; }
+        @media (max-width: 768px) {
+            table, thead, tbody, th, td, tr { display: block; }
+            thead tr { display: none; }
+            tr { margin-bottom: 20px; background: #fff; border-radius: 16px; padding: 15px; border: 1px solid #e5e5ea; }
+            td { display: flex; flex-direction: column; padding: 10px 0; border-bottom: 1px dashed #f5f5f7; }
+            td::before { content: attr(data-label); font-size: 0.8rem; color: #86868b; font-weight: 700; margin-bottom: 5px; }
+            button { width: 100%; margin: 5px 0; }
+        }
     </style>
 </head>
 <body>
@@ -61,7 +47,7 @@
         <input type="text" id="adminUser" placeholder="管理員帳號">
         <input type="password" id="adminPass" placeholder="管理員密碼">
         <button class="login-btn" onclick="checkLogin()">登入</button>
-        <p id="errorMsg" style="color:var(--danger); display:none; font-size:14px; margin-top:15px; font-weight:600;">驗證失敗，請重新輸入</p>
+        <p id="errorMsg" style="color:var(--danger); display:none; margin-top:15px;">驗證失敗</p>
     </div>
 </div>
 
@@ -71,189 +57,156 @@
     <div class="container">
         <div class="container-header">
             <h2>即時訂單管理</h2>
-            <button onclick="loadOrders()" style="background:#f5f5f7; color:var(--text-main);">↻ 重新整理</button>
+            <div><button onclick="exportOrders()">📥 匯出</button><button onclick="loadOrders()" style="background:#f5f5f7; color:#333;">↻ 整理</button></div>
         </div>
         <table>
-            <thead><tr><th width="100">下單時間</th><th>顧客資訊</th><th>餐點明細</th><th width="120">應收金額</th><th width="90">操作</th></tr></thead>
+            <thead><tr><th>下單時間</th><th>顧客資訊</th><th>餐點明細</th><th>金額</th><th>操作</th></tr></thead>
             <tbody id="order-list"></tbody>
         </table>
     </div>
 
     <div class="container">
         <div class="container-header">
-            <h2>商品與菜單設定</h2>
-            <div>
-                <button class="green" onclick="addNewItemRow()">＋ 新增商品</button>
-                <button onclick="saveMenuToCloud()" style="background:var(--primary)">保存發布</button>
-            </div>
+            <h2>單點商品設定 (總量管制)</h2>
+            <div><button class="green" onclick="addSingleItem()">＋ 新增單品</button><button onclick="saveMenuToCloud()" style="background:var(--primary)">💾 保存發布</button></div>
         </div>
-        <p style="color: #86868b; font-size: 14px; margin-top:-10px; margin-bottom:20px;">💡 若不需特價，請將「預購價」留空即可。</p>
-        
         <table>
-            <thead>
-                <tr>
-                    <th width="70">預覽</th>
-                    <th>商品名稱</th>
-                    <th width="120">原價 ($)</th>
-                    <th width="120">預購價 ($)</th>
-                    <th>圖片連結 (URL)</th>
-                    <th width="90">操作</th>
-                </tr>
-            </thead>
-            <tbody id="menu-edit-list"></tbody>
+            <thead><tr><th width="60">預覽</th><th>商品名稱</th><th width="90">原價</th><th width="90">預購價</th><th width="90">總庫存量</th><th>圖片連結</th><th width="70">操作</th></tr></thead>
+            <tbody id="single-list"></tbody>
         </table>
     </div>
 
+    <div class="container">
+        <div class="container-header">
+            <h2>套餐組合設定 (共用單點庫存)</h2>
+            <button class="green" onclick="addComboItem()">＋ 新增套餐</button>
+        </div>
+        <p style="color:#86868b; font-size:0.9rem; margin-top:-10px;">💡 勾選下方單品組成套餐，客人買套餐會自動扣除對應的單品庫存喔！</p>
+        <table>
+            <thead><tr><th>套餐名稱</th><th width="100">原價</th><th width="100">預購價</th><th>包含內容 (勾選)</th><th width="70">操作</th></tr></thead>
+            <tbody id="combo-list"></tbody>
+        </table>
+    </div>
 </div>
 
 <script>
-    let currentMenu = [];
+    let currentSingleItems = [];
+    let currentCombos = [];
     let currentOrders = [];
 
     async function checkLogin() {
         const user = document.getElementById('adminUser').value;
         const pass = document.getElementById('adminPass').value;
-        const btn = document.querySelector('.login-btn');
-        btn.innerText = '驗證中...';
-        
-        try {
-            const resp = await fetch('/api/admin-login', {
-                method: 'POST',
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ user, pass })
-            });
-            
-            if (resp.ok) {
-                document.getElementById('login-screen').style.opacity = '0';
-                setTimeout(() => {
-                    document.getElementById('login-screen').style.display = 'none';
-                    document.getElementById('admin-panel').style.display = 'block';
-                    loadOrders();
-                    loadMenu();
-                }, 300);
-            } else {
-                document.getElementById('errorMsg').style.display = 'block';
-                btn.innerText = '登入';
-            }
-        } catch (e) {
-            alert("連線錯誤");
-            btn.innerText = '登入';
-        }
+        const resp = await fetch('/api/admin-login', { method: 'POST', headers: { "Content-Type": "application/json" }, body: JSON.stringify({ user, pass }) });
+        if (resp.ok) {
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('admin-panel').style.display = 'block';
+            loadOrders(); loadMenu();
+        } else { document.getElementById('errorMsg').style.display = 'block'; }
     }
 
     async function loadOrders() {
-        document.getElementById('order-list').innerHTML = '<tr><td colspan="5" style="text-align:center; padding:30px; color:#86868b;">資料同步中...</td></tr>';
-        try {
-            const resp = await fetch('/api/orders');
-            currentOrders = await resp.json();
-            renderOrders();
-        } catch (err) { alert('訂單讀取失敗'); }
-    }
-
-    function renderOrders() {
+        const resp = await fetch('/api/orders');
+        currentOrders = await resp.json();
         let html = '';
-        currentOrders.forEach((order, index) => {
+        currentOrders.forEach((order, i) => {
             html += `<tr>
-                <td><span class="tag">${order.time}</span></td>
-                <td><b style="font-size:1.1rem">${order.name}</b><br><small style="color:#86868b; line-height:1.5; display:inline-block; margin-top:4px;">${order.identity}</small></td>
-                <td><div style="line-height:1.6">${order.items}</div></td>
-                <td><span style="color:var(--text-main); font-weight:800; font-size:1.2rem;">$${order.total}</span></td>
-                <td><button class="red" onclick="deleteOrder(${index})">刪除</button></td>
+                <td data-label="時間">${order.time}</td><td data-label="資訊"><b>${order.name}</b><br><small>${order.identity}</small></td>
+                <td data-label="明細">${order.items}</td><td data-label="金額"><b>$${order.total}</b></td>
+                <td data-label="操作"><button class="red" onclick="deleteOrder(${i})">刪除</button></td>
             </tr>`;
         });
-        document.getElementById('order-list').innerHTML = html || '<tr><td colspan="5" style="text-align:center; padding:30px; color:#86868b;">目前尚無訂單資料</td></tr>';
+        document.getElementById('order-list').innerHTML = html || '<tr><td colspan="5">目前尚無訂單</td></tr>';
     }
 
-    async function deleteOrder(index) {
-        if(!confirm("確定要刪除這筆訂單嗎？刪除後將無法復原。")) return;
-        
-        currentOrders.splice(index, 1);
-        renderOrders(); 
-        
-        try {
-            const resp = await fetch('/api/orders', {
-                method: 'PUT',
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(currentOrders)
-            });
-            if (!resp.ok) throw new Error();
-        } catch (e) {
-            alert("刪除同步失敗，將重新載入最新資料");
-            loadOrders(); 
-        }
+    function exportOrders() {
+        if(currentOrders.length===0) return;
+        let csv = "\ufeff下單時間,顧客姓名,聯絡資訊,餐點明細,總金額\n";
+        currentOrders.forEach(o => csv += `${o.time},${o.name},${o.identity.replace(/<br>/g,' ')},${o.items.replace(/<br>/g,' | ').replace(/,/g,' ')},${o.total}\n`);
+        const link = document.createElement("a"); link.href = URL.createObjectURL(new Blob([csv], {type:'text/csv;charset=utf-8;'}));
+        link.download = `訂單_${new Date().toLocaleDateString()}.csv`; link.click();
+    }
+
+    async function deleteOrder(i) {
+        if(!confirm("確定刪除？")) return;
+        currentOrders.splice(i, 1);
+        await fetch('/api/orders', { method: 'PUT', headers: { "Content-Type": "application/json" }, body: JSON.stringify(currentOrders) });
+        loadOrders();
     }
 
     async function loadMenu() {
-        document.getElementById('menu-edit-list').innerHTML = '<tr><td colspan="6" style="text-align:center; padding:30px; color:#86868b;">資料同步中...</td></tr>';
-        try {
-            const resp = await fetch('/api/menu');
-            currentMenu = await resp.json();
-            renderMenuEditor();
-        } catch (err) { alert('菜單讀取失敗'); }
+        const resp = await fetch('/api/menu');
+        const data = await resp.json();
+        // 分類舊資料與新資料
+        currentSingleItems = data.filter(i => !i.type || i.type === 'item').map(i => ({...i, type:'item', stock: i.stock||0}));
+        currentCombos = data.filter(i => i.type === 'combo');
+        renderMenuEditor();
     }
 
     function renderMenuEditor() {
-        let html = '';
-        currentMenu.forEach((item, index) => {
-            let prePriceValue = (item.prePrice && item.prePrice > 0) ? item.prePrice : ''; 
-            let imgSrc = item.img ? item.img : 'https://via.placeholder.com/56/f5f5f7/86868b?text=Img';
-            
-            html += `
-                <tr id="row-${index}">
-                    <td><img src="${imgSrc}" class="menu-img-preview" onerror="this.src='https://via.placeholder.com/56/f5f5f7/86868b?text=Err'"></td>
-                    <td><input type="text" value="${item.name}" id="name-${index}"></td>
-                    <td><input type="number" value="${item.price}" id="price-${index}"></td>
-                    <td><input type="number" value="${prePriceValue}" id="prePrice-${index}" placeholder="留空無特價"></td>
-                    <td><input type="text" value="${item.img}" id="img-${index}" placeholder="圖片網址"></td>
-                    <td><button class="red" onclick="removeItem(${index})">移除</button></td>
-                </tr>
-            `;
+        // 渲染單點
+        let sHtml = '';
+        currentSingleItems.forEach((item, i) => {
+            sHtml += `<tr>
+                <td data-label="預覽"><img src="${item.img||'https://via.placeholder.com/60'}" style="width:50px; border-radius:8px;"></td>
+                <td data-label="商品名稱"><input type="text" value="${item.name}" id="s-name-${i}"></td>
+                <td data-label="原價"><input type="number" value="${item.price}" id="s-price-${i}"></td>
+                <td data-label="預購價"><input type="number" value="${item.prePrice||''}" id="s-prePrice-${i}"></td>
+                <td data-label="總庫存量"><input type="number" value="${item.stock}" id="s-stock-${i}" style="border-color:var(--primary); font-weight:bold;"></td>
+                <td data-label="圖片連結"><input type="text" value="${item.img}" id="s-img-${i}"></td>
+                <td data-label="操作"><button class="red" onclick="removeSingle(${i})">移除</button></td>
+            </tr>`;
         });
-        document.getElementById('menu-edit-list').innerHTML = html || '<tr><td colspan="6" style="text-align:center; padding:30px; color:#86868b;">尚無商品，請點擊上方按鈕新增</td></tr>';
+        document.getElementById('single-list').innerHTML = sHtml || '<tr><td colspan="7">尚無商品</td></tr>';
+
+        // 渲染套餐
+        let cHtml = '';
+        currentCombos.forEach((combo, i) => {
+            let checkboxes = currentSingleItems.map(si => {
+                let checked = (combo.comboItems || []).includes(si.id) ? 'checked' : '';
+                return `<label style="display:inline-block; margin-right:10px; font-size:0.9rem;"><input type="checkbox" class="combo-chk-${i}" value="${si.id}" ${checked}> ${si.name}</label>`;
+            }).join('');
+
+            cHtml += `<tr>
+                <td data-label="套餐名稱"><input type="text" value="${combo.name}" id="c-name-${i}"></td>
+                <td data-label="原價"><input type="number" value="${combo.price}" id="c-price-${i}"></td>
+                <td data-label="預購價"><input type="number" value="${combo.prePrice||''}" id="c-prePrice-${i}"></td>
+                <td data-label="包含內容"><div style="padding:10px 0;">${checkboxes}</div></td>
+                <td data-label="操作"><button class="red" onclick="removeCombo(${i})">移除</button></td>
+            </tr>`;
+        });
+        document.getElementById('combo-list').innerHTML = cHtml || '<tr><td colspan="5">尚無套餐</td></tr>';
     }
 
-    function addNewItemRow() {
-        currentMenu.push({ id: 'm' + Date.now(), name: "新商品", price: 0, prePrice: null, img: "" });
-        renderMenuEditor();
-    }
-
-    function removeItem(index) {
-        currentMenu.splice(index, 1);
-        renderMenuEditor();
-    }
+    function addSingleItem() { currentSingleItems.push({ id: 'm'+Date.now(), name: "新單品", price: 0, stock: 50, img: "" }); renderMenuEditor(); }
+    function removeSingle(i) { currentSingleItems.splice(i, 1); renderMenuEditor(); }
+    
+    function addComboItem() { currentCombos.push({ id: 'c'+Date.now(), name: "新套餐", price: 0, comboItems: [] }); renderMenuEditor(); }
+    function removeCombo(i) { currentCombos.splice(i, 1); renderMenuEditor(); }
 
     async function saveMenuToCloud() {
-        const newMenuData = currentMenu.map((item, index) => {
+        const newSingle = currentSingleItems.map((item, i) => ({
+            id: item.id, type: 'item',
+            name: document.getElementById(`s-name-${i}`).value,
+            price: parseInt(document.getElementById(`s-price-${i}`).value) || 0,
+            prePrice: parseInt(document.getElementById(`s-prePrice-${i}`).value) || 0,
+            stock: parseInt(document.getElementById(`s-stock-${i}`).value) || 0,
+            img: document.getElementById(`s-img-${i}`).value
+        }));
+
+        const newCombo = currentCombos.map((item, i) => {
+            let selected = Array.from(document.querySelectorAll(`.combo-chk-${i}:checked`)).map(cb => cb.value);
             return {
-                id: item.id,
-                name: document.getElementById(`name-${index}`).value,
-                price: parseInt(document.getElementById(`price-${index}`).value) || 0,
-                prePrice: parseInt(document.getElementById(`prePrice-${index}`).value) || 0,
-                img: document.getElementById(`img-${index}`).value
+                id: item.id, type: 'combo',
+                name: document.getElementById(`c-name-${i}`).value,
+                price: parseInt(document.getElementById(`c-price-${i}`).value) || 0,
+                prePrice: parseInt(document.getElementById(`c-prePrice-${i}`).value) || 0,
+                comboItems: selected
             };
         });
 
-        const btn = event.target;
-        const originalText = btn.innerText;
-        btn.innerText = "處理中...";
-        btn.disabled = true;
-        
-        try {
-            const resp = await fetch('/api/menu', {
-                method: 'PUT',
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(newMenuData)
-            });
-            if (resp.ok) {
-                alert("發布成功！前台菜單已更新。");
-                loadMenu(); 
-            } else {
-                throw new Error();
-            }
-        } catch (e) { alert("儲存失敗，請檢查網路連線"); }
-        
-        btn.innerText = originalText;
-        btn.disabled = false;
+        await fetch('/api/menu', { method: 'PUT', headers: { "Content-Type": "application/json" }, body: JSON.stringify([...newSingle, ...newCombo]) });
+        alert("✅ 菜單與庫存已發布更新！"); loadMenu();
     }
 </script>
 </body>
