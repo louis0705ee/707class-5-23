@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🎡 園遊會預購系統</title>
     <style>
-        /* 現代化 UI 變數與基本設定 */
         :root {
             --primary: #ff4757;
             --primary-hover: #ff6b81;
@@ -21,7 +20,6 @@
         
         h2 { text-align: center; color: var(--text-main); font-weight: 800; margin-bottom: 25px; letter-spacing: 1px; }
         
-        /* 表單與按鈕現代化 */
         .form-group { margin-bottom: 18px; }
         label { display: block; margin-bottom: 8px; font-weight: 600; color: #57606f; font-size: 0.95rem; }
         input[type="text"], input[type="tel"], input[type="number"] { width: 100%; padding: 12px 15px; border: 2px solid #dfe4ea; border-radius: 10px; box-sizing: border-box; font-size: 1rem; transition: 0.3s; outline: none; }
@@ -32,30 +30,25 @@
         .btn-secondary { background: #ced6e0; color: #2f3542; box-shadow: none; }
         .btn-secondary:hover { background: #a4b0be; box-shadow: none; }
 
-        /* 菜單卡片現代化 */
         .menu-item { display: flex; align-items: center; padding: 15px; margin-bottom: 15px; background: #fff; border-radius: 15px; border: 1px solid #f1f2f6; box-shadow: 0 4px 10px rgba(0,0,0,0.03); transition: 0.3s; }
         .menu-item:hover { border-color: #ffeaa7; }
         .menu-item img { width: 85px; height: 85px; object-fit: cover; border-radius: 12px; margin-right: 15px; }
         .item-info { flex-grow: 1; }
         .item-title { font-weight: 700; font-size: 1.1rem; margin: 0 0 5px 0; }
         
-        /* 價格顯示邏輯 */
         .price-area { margin-top: 5px; }
         .old-price { text-decoration: line-through; color: var(--text-muted); font-size: 0.9rem; margin-right: 8px; }
         .new-price { color: var(--primary); font-weight: 800; font-size: 1.2rem; }
 
-        /* 數量控制器 */
         .qty-controls { display: flex; align-items: center; background: #f1f2f6; border-radius: 20px; padding: 2px 5px; }
         .qty-btn { width: 32px; height: 32px; background: white; border: none; border-radius: 50%; cursor: pointer; font-size: 1.2rem; font-weight: bold; color: var(--primary); box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .qty-display { margin: 0 12px; font-weight: 800; width: 20px; text-align: center; }
 
-        /* 其他區域 */
         .cart-bar { position: sticky; bottom: 20px; margin-top: 20px; z-index: 10; }
         .summary-box { background: #f8f9fa; padding: 20px; border-radius: 15px; border: 1px dashed #ced6e0; margin-bottom: 20px; }
         .summary-item { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 1.05rem; }
         .warning-text { color: var(--primary); font-weight: bold; text-align: center; margin: 15px 0; }
         
-        /* IG 提示區塊 */
         .ig-notice { background: #ffeaa7; padding: 12px; border-radius: 10px; margin-top: 10px; font-size: 0.9rem; line-height: 1.5; color: #2d3436; border: 1px solid #fdcb6e; }
         .ig-notice a { color: #e1306c; font-weight: bold; text-decoration: none; display: inline-block; margin-top: 5px; }
     </style>
@@ -63,9 +56,25 @@
 <body>
 
 <div class="app-container">
-    <!-- 畫面 1: 登入/基本資訊 -->
-    <div id="page-login">
-        <h2>👋 歡迎來到花果山預購系統</h2>
+    <!-- 畫面 1: 菜單選擇 (改成最先顯示) -->
+    <div id="page-menu">
+        <h2>🍔 本日嚴選菜單</h2>
+        <div id="menu-list"><p style="text-align:center; color:#747d8c;">美味載入中，請稍候...</p></div>
+        <div class="cart-bar"><button class="btn" onclick="goToCart()">🛒 查看購物車 (<span id="cart-count">0</span>)</button></div>
+    </div>
+
+    <!-- 畫面 2: 購物車確認 -->
+    <div id="page-cart" class="hidden">
+        <h2>🛒 我的購物車</h2>
+        <div id="cart-items" class="summary-box"></div>
+        <h2 style="text-align: right; color: #ff4757;">總計: $<span id="cart-total">0</span></h2>
+        <button class="btn" onclick="goToLogin()">下一步：填寫聯絡資訊</button>
+        <button class="btn btn-secondary" onclick="backToMenu()">繼續點餐</button>
+    </div>
+
+    <!-- 畫面 3: 登入/基本資訊 -->
+    <div id="page-login" class="hidden">
+        <h2>📝 填寫聯絡資訊</h2>
         <div class="form-group">
             <label>您是校內學生還是訪客？</label>
             <div style="display:flex; gap:15px; margin-bottom:10px;">
@@ -74,7 +83,6 @@
             </div>
         </div>
         
-        <!-- 學生專屬欄位 -->
         <div id="student-fields">
             <div style="display: flex; gap: 10px;">
                 <div class="form-group" style="flex: 1;"><label>班級 (如: 107)</label><input type="text" id="classInfo" placeholder="請輸入班級"></div>
@@ -82,15 +90,12 @@
             </div>
         </div>
         
-        <!-- 校外專屬欄位 -->
         <div id="outsider-fields" class="hidden">
             <div class="form-group"><label>聯絡電話</label><input type="tel" id="phoneInfo" placeholder="請輸入您的手機號碼"></div>
         </div>
         
-        <!-- 共同欄位 -->
         <div class="form-group"><label>您的姓名</label><input type="text" id="userName" placeholder="請輸入姓名"></div>
         
-        <!-- 新增：IG 欄位與追蹤提示 -->
         <div class="form-group">
             <label>Instagram 帳號 (必填)</label>
             <input type="text" id="igInfo" placeholder="例如: louis_chen_0705">
@@ -100,23 +105,8 @@
             </div>
         </div>
 
-        <button class="btn" onclick="goToMenu()">開始點餐 🚀</button>
-    </div>
-
-    <!-- 畫面 2: 菜單選擇 -->
-    <div id="page-menu" class="hidden">
-        <h2>🐵 花果山預購菜單</h2>
-        <div id="menu-list"><p style="text-align:center; color:#747d8c;">美味載入中，請稍候...</p></div>
-        <div class="cart-bar"><button class="btn" onclick="goToCart()">🛒 查看購物車 (<span id="cart-count">0</span>)</button></div>
-    </div>
-
-    <!-- 畫面 3: 購物車確認 -->
-    <div id="page-cart" class="hidden">
-        <h2>🛒 我的購物車</h2>
-        <div id="cart-items" class="summary-box"></div>
-        <h2 style="text-align: right; color: #ff4757;">總計: $<span id="cart-total">0</span></h2>
-        <button class="btn" onclick="goToReview()">下一步：確認訂單</button>
-        <button class="btn btn-secondary" onclick="backToMenu()">再逛逛</button>
+        <button class="btn" onclick="goToReview()">下一步：確認訂單 🚀</button>
+        <button class="btn btn-secondary" onclick="backToCart()">返回購物車</button>
     </div>
 
     <!-- 畫面 4: 最終確認與送出 -->
@@ -130,56 +120,19 @@
 </div>
 
 <script>
-    // ⚠️⚠️⚠️ 記得換成你自己的三把鑰匙！ ⚠️⚠️⚠️
-    const API_KEY = '$2a$10$Ved0Z4ofi5lO5WZ7BG7W9eL3y82JQlNiuyQQYm6qJn6CD5dWZ/Xei';
-    const ORDER_BIN_ID = '6a032250250b1311c33bdffa'; 
-    const MENU_BIN_ID = '6a0328ab250b1311c33c0ecb'; 
-
     let menuData = [];
     let userInfo = {};
     let cart = {};
 
     window.onload = async function() {
         try {
-            const resp = await fetch(`https://api.jsonbin.io/v3/b/${MENU_BIN_ID}/latest`, { headers: { "X-Master-Key": API_KEY } });
-            const data = await resp.json();
-            menuData = data.record || [];
+            const resp = await fetch('/api/menu');
+            menuData = await resp.json();
             renderMenu(); 
         } catch (err) {
             document.getElementById('menu-list').innerHTML = '<p style="text-align:center; color:red;">載入失敗，請重新整理</p>';
         }
     };
-
-    function toggleUserForm() {
-        const isStudent = document.querySelector('input[name="userType"]:checked').value === 'student';
-        document.getElementById('student-fields').classList.toggle('hidden', !isStudent);
-        document.getElementById('outsider-fields').classList.toggle('hidden', isStudent);
-    }
-
-    function goToMenu() {
-        const type = document.querySelector('input[name="userType"]:checked').value;
-        const name = document.getElementById('userName').value.trim();
-        const classInfo = document.getElementById('classInfo').value.trim();
-        const seatInfo = document.getElementById('seatInfo').value.trim();
-        const phoneInfo = document.getElementById('phoneInfo').value.trim();
-        const igInfo = document.getElementById('igInfo').value.trim();
-
-        // 檢查防呆機制
-        if (!name) return alert("請輸入姓名！");
-        if (!igInfo) return alert("請輸入您的 IG 帳號以便聯絡喔！");
-        
-        let identityStr = '';
-        if (type === 'student') {
-            if (!classInfo || !seatInfo) return alert("校內同學請輸入班級與座號！");
-            identityStr = `班級: ${classInfo} | 座號: ${seatInfo}<br>IG: ${igInfo}`;
-        } else {
-            if (!phoneInfo) return alert("請輸入聯絡電話！");
-            identityStr = `電話: ${phoneInfo}<br>IG: ${igInfo}`;
-        }
-
-        userInfo = { type, name, identity: identityStr };
-        switchPage('page-menu');
-    }
 
     function renderMenu() {
         const menuList = document.getElementById('menu-list');
@@ -242,8 +195,39 @@
     }
 
     function backToMenu() { switchPage('page-menu'); }
+    
+    function goToLogin() { switchPage('page-login'); }
+    
+    function backToCart() { switchPage('page-cart'); }
+
+    function toggleUserForm() {
+        const isStudent = document.querySelector('input[name="userType"]:checked').value === 'student';
+        document.getElementById('student-fields').classList.toggle('hidden', !isStudent);
+        document.getElementById('outsider-fields').classList.toggle('hidden', isStudent);
+    }
 
     function goToReview() {
+        const type = document.querySelector('input[name="userType"]:checked').value;
+        const name = document.getElementById('userName').value.trim();
+        const classInfo = document.getElementById('classInfo').value.trim();
+        const seatInfo = document.getElementById('seatInfo').value.trim();
+        const phoneInfo = document.getElementById('phoneInfo').value.trim();
+        const igInfo = document.getElementById('igInfo').value.trim();
+
+        if (!name) return alert("請輸入姓名！");
+        if (!igInfo) return alert("請輸入您的 IG 帳號以便聯絡喔！");
+        
+        let identityStr = '';
+        if (type === 'student') {
+            if (!classInfo || !seatInfo) return alert("校內同學請輸入班級與座號！");
+            identityStr = `班級: ${classInfo} | 座號: ${seatInfo}<br>IG: ${igInfo}`;
+        } else {
+            if (!phoneInfo) return alert("請輸入聯絡電話！");
+            identityStr = `電話: ${phoneInfo}<br>IG: ${igInfo}`;
+        }
+
+        userInfo = { type, name, identity: identityStr };
+
         const summaryDiv = document.getElementById('final-summary');
         let html = `<p style="margin-top:0;"><b>訂購人：</b> ${userInfo.name}</p><p><b>聯絡資訊：</b><br>${userInfo.identity}</p><hr style="border:0; border-top:1px dashed #ccc; margin:15px 0;"><p><b>餐點明細：</b></p>`;
         let totalAmt = 0;
@@ -277,16 +261,17 @@
         const newOrder = { time: new Date().toLocaleTimeString(), name: userInfo.name, identity: userInfo.identity, items: orderItems, total: totalAmt };
 
         try {
-            const getResp = await fetch(`https://api.jsonbin.io/v3/b/${ORDER_BIN_ID}/latest`, { headers: { "X-Master-Key": API_KEY } });
-            const oldData = await getResp.json();
-            let allOrders = oldData.record || [];
-            allOrders.push(newOrder);
-
-            const updateResp = await fetch(`https://api.jsonbin.io/v3/b/${ORDER_BIN_ID}`, { method: 'PUT', headers: { "Content-Type": "application/json", "X-Master-Key": API_KEY }, body: JSON.stringify(allOrders) });
+            const updateResp = await fetch('/api/orders', {
+                method: 'POST',
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(newOrder)
+            });
 
             if (updateResp.ok) {
                 alert("🎉 預購成功！老闆已經收到你的訂單囉！");
                 location.reload(); 
+            } else {
+                throw new Error("Network response error");
             }
         } catch (err) {
             alert("傳送失敗，請稍後再試！");
@@ -296,9 +281,9 @@
     }
 
     function switchPage(pageId) {
-        document.getElementById('page-login').classList.add('hidden');
         document.getElementById('page-menu').classList.add('hidden');
         document.getElementById('page-cart').classList.add('hidden');
+        document.getElementById('page-login').classList.add('hidden');
         document.getElementById('page-review').classList.add('hidden');
         document.getElementById(pageId).classList.remove('hidden');
         window.scrollTo(0,0);
