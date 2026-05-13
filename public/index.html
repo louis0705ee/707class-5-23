@@ -5,127 +5,106 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>🎡 園遊會預購系統</title>
     <style>
-        :root {
-            --bg-color: #f5f5f7;
-            --card-bg: #ffffff;
-            --text-main: #1d1d1f;
-            --text-muted: #86868b;
-            --accent: #ff3b30;
-            --button-bg: #1d1d1f;
-            --shadow: 0 20px 40px rgba(0,0,0,0.06);
-            --radius: 20px;
-        }
+        :root { --bg-color: #f5f5f7; --card-bg: #ffffff; --text-main: #1d1d1f; --text-muted: #86868b; --accent: #ff3b30; --button-bg: #1d1d1f; --shadow: 0 20px 40px rgba(0,0,0,0.06); }
         html { -webkit-text-size-adjust: 100%; font-size: 16px; }
         body { font-family: -apple-system, BlinkMacSystemFont, "PingFang TC", "Microsoft JhengHei", sans-serif; background: var(--bg-color); margin: 0; padding: 0; display: flex; justify-content: center; color: var(--text-main); -webkit-font-smoothing: antialiased; }
-        .app-container { width: 100%; max-width: 480px; background: var(--card-bg); min-height: 100vh; padding: 30px 25px; box-sizing: border-box; box-shadow: var(--shadow); position: relative; }
+        .app-container { width: 100%; max-width: 480px; background: var(--card-bg); min-height: 100vh; padding: 30px 25px; box-sizing: border-box; box-shadow: var(--shadow); position: relative; padding-bottom: 100px; }
         .hidden { display: none !important; }
-        
-        .fade-in { animation: fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .fade-in { animation: fadeIn 0.5s forwards; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
 
-        h2 { text-align: center; font-weight: 700; font-size: 1.5rem; margin-bottom: 30px; letter-spacing: 0.5px; }
+        h2 { text-align: center; font-weight: 700; font-size: 1.5rem; margin-bottom: 20px; letter-spacing: 0.5px; }
+        .section-title { font-size: 1.3rem; font-weight: 700; margin: 30px 0 15px 0; padding-bottom: 8px; border-bottom: 2px solid #f1f2f6; color: var(--text-main); }
         
         .form-group { margin-bottom: 20px; }
-        label { display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-main); font-size: 0.95rem; }
+        label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.95rem; }
         input[type="text"], input[type="tel"], input[type="number"] { width: 100%; padding: 15px; border: 1px solid transparent; background: #f5f5f7; border-radius: 12px; box-sizing: border-box; font-size: 16px; transition: 0.3s; outline: none; -webkit-appearance: none; }
-        input[type="text"]:focus, input[type="tel"]:focus, input[type="number"]:focus { border-color: #0071e3; background: #fff; box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.1); }
+        input:focus { border-color: #0071e3; background: #fff; box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.1); }
         
         .radio-group { display: flex; gap: 15px; margin-bottom: 15px; }
         .radio-label { flex: 1; text-align: center; padding: 12px; background: #f5f5f7; border-radius: 12px; cursor: pointer; font-weight: 600; transition: 0.3s; border: 2px solid transparent; }
         input[type="radio"] { display: none; }
         input[type="radio"]:checked + .radio-label { background: #fff; border-color: var(--text-main); color: var(--text-main); box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
 
-        .btn { width: 100%; padding: 16px; background: var(--button-bg); color: white; border: none; border-radius: 14px; font-size: 1.1rem; font-weight: 600; cursor: pointer; margin-top: 10px; transition: transform 0.2s, background 0.2s; letter-spacing: 1px; }
+        .btn { width: 100%; padding: 16px; background: var(--button-bg); color: white; border: none; border-radius: 14px; font-size: 1.1rem; font-weight: 600; cursor: pointer; margin-top: 10px; transition: 0.2s; }
         .btn:hover { transform: scale(0.98); background: #333; }
         .btn-secondary { background: #e8e8ed; color: var(--text-main); }
-        .btn-secondary:hover { background: #d2d2d7; }
 
-        .menu-item { display: flex; align-items: center; padding: 16px; margin-bottom: 16px; background: #fff; border-radius: 18px; border: 1px solid #f1f2f6; box-shadow: 0 4px 15px rgba(0,0,0,0.02); transition: 0.3s; }
-        .menu-item:hover { box-shadow: 0 8px 25px rgba(0,0,0,0.06); transform: translateY(-2px); }
-        .menu-item img { width: 90px; height: 90px; object-fit: cover; border-radius: 14px; margin-right: 18px; }
+        .menu-item { display: flex; align-items: center; padding: 16px; margin-bottom: 16px; background: #fff; border-radius: 18px; border: 1px solid #f1f2f6; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
+        .menu-item img { width: 80px; height: 80px; object-fit: cover; border-radius: 14px; margin-right: 15px; }
         .item-info { flex-grow: 1; }
-        .item-title { font-weight: 700; font-size: 1.15rem; margin: 0 0 6px 0; }
+        .item-title { font-weight: 700; font-size: 1.1rem; margin: 0 0 4px 0; }
+        .combo-desc { font-size: 0.85rem; color: #86868b; margin-bottom: 6px; line-height: 1.4; }
         
         .price-area { margin-top: 5px; }
         .old-price { text-decoration: line-through; color: var(--text-muted); font-size: 0.9rem; margin-right: 8px; }
-        .new-price { color: var(--accent); font-weight: 700; font-size: 1.25rem; }
+        .new-price { color: var(--accent); font-weight: 700; font-size: 1.2rem; }
 
         .qty-controls { display: flex; align-items: center; background: #f5f5f7; border-radius: 20px; padding: 4px; }
-        .qty-btn { width: 34px; height: 34px; background: white; border: none; border-radius: 50%; cursor: pointer; font-size: 1.2rem; color: var(--text-main); box-shadow: 0 2px 6px rgba(0,0,0,0.06); transition: 0.2s; }
-        .qty-btn:active { transform: scale(0.9); }
+        .qty-btn { width: 32px; height: 32px; background: white; border: none; border-radius: 50%; cursor: pointer; font-size: 1.2rem; font-weight:bold; color: var(--text-main); box-shadow: 0 2px 6px rgba(0,0,0,0.06); }
         .qty-display { margin: 0 12px; font-weight: 700; width: 20px; text-align: center; }
 
-        .cart-bar { position: sticky; bottom: 20px; margin-top: 30px; z-index: 10; padding: 15px; border-radius: 20px; background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 1px solid rgba(255,255,255,0.5); }
+        .cart-bar { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 440px; z-index: 100; padding: 15px; border-radius: 20px; background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); box-shadow: 0 10px 30px rgba(0,0,0,0.15); border: 1px solid rgba(255,255,255,0.5); }
         .cart-bar .btn { margin: 0; box-shadow: none; }
 
         .summary-box { background: #f5f5f7; padding: 25px; border-radius: 18px; margin-bottom: 25px; }
         .summary-item { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 1.05rem; color: #333; }
-        .warning-text { color: var(--text-muted); font-size: 0.9rem; text-align: center; margin: 20px 0; }
-        
-        .ig-notice { background: rgba(0, 113, 227, 0.05); padding: 15px; border-radius: 12px; margin-top: 12px; font-size: 0.9rem; line-height: 1.6; color: #1d1d1f; text-align: center; }
-        .ig-notice a { color: #0071e3; font-weight: 700; text-decoration: none; display: inline-block; margin-top: 5px; background: #fff; padding: 6px 12px; border-radius: 20px; box-shadow: 0 2px 8px rgba(0,113,227,0.15); transition: 0.2s; }
-        .ig-notice a:hover { transform: translateY(-2px); }
     </style>
 </head>
 <body>
 
 <div class="app-container">
     <div id="page-menu" class="fade-in">
-        <h2 style="margin-bottom: 10px;">花果山預購菜單</h2>
-        <p style="text-align:center; color:#86868b; font-size: 0.85rem; margin-top: 0; margin-bottom: 25px;">* 圖片僅供參考，請以實物為準</p>
-        <div id="menu-list"><p style="text-align:center; color:#86868b;">美味載入中，請稍候...</p></div>
+        <h2>花果山預購菜單</h2>
+        <p style="text-align:center; color:#86868b; font-size: 0.85rem; margin-top: -10px; margin-bottom: 20px;">* 圖片僅供參考，請以實物為準</p>
+        
+        <!-- 單點區 -->
+        <div id="menu-list"><p style="text-align:center; color:#86868b;">美味載入中...</p></div>
+        
+        <!-- 套餐區 -->
+        <div id="combo-list"></div>
+
         <div class="cart-bar"><button class="btn" onclick="goToCart()">前往購物車 (<span id="cart-count">0</span>)</button></div>
     </div>
 
+    <!-- 購物車 -->
     <div id="page-cart" class="hidden">
         <h2>我的購物車</h2>
         <div id="cart-items" class="summary-box"></div>
-        <h2 style="text-align: right; color: var(--text-main); font-size: 1.8rem; margin-bottom: 30px;">總計 $<span id="cart-total">0</span></h2>
+        <h2 style="text-align: right; font-size: 1.8rem; margin-bottom: 30px;">總計 $<span id="cart-total">0</span></h2>
         <button class="btn" onclick="goToLogin()">下一步：填寫聯絡資訊</button>
         <button class="btn btn-secondary" onclick="backToMenu()">繼續點餐</button>
     </div>
 
+    <!-- 聯絡資訊 -->
     <div id="page-login" class="hidden">
         <h2>聯絡資訊</h2>
-        
         <div class="radio-group">
             <input type="radio" id="type-student" name="userType" value="student" checked onchange="toggleUserForm()">
             <label for="type-student" class="radio-label">校內學生</label>
             <input type="radio" id="type-outsider" name="userType" value="outsider" onchange="toggleUserForm()">
             <label for="type-outsider" class="radio-label">訪客 / 家長</label>
         </div>
-        
         <div class="form-group"><label>姓名 (必填)</label><input type="text" id="userName" placeholder="如何稱呼您"></div>
-        
         <div id="student-fields" class="fade-in">
             <div style="display: flex; gap: 15px;">
                 <div class="form-group" style="flex: 1;"><label>班級 (必填)</label><input type="text" id="classInfo" placeholder="如: 107"></div>
                 <div class="form-group" style="flex: 1;"><label>座號 (必填)</label><input type="number" id="seatInfo" placeholder="如: 5"></div>
             </div>
         </div>
-        
-        <div class="form-group">
-            <label id="phoneLabel">聯絡電話 (與 IG 擇一填寫)</label>
-            <input type="tel" id="phoneInfo" placeholder="您的手機號碼">
-        </div>
-        
+        <div class="form-group"><label id="phoneLabel">聯絡電話 (與 IG 擇一填寫)</label><input type="tel" id="phoneInfo" placeholder="您的手機號碼"></div>
         <div class="form-group">
             <label id="igLabel">Instagram 帳號 (與電話擇一填寫)</label>
             <input type="text" id="igInfo" placeholder="您的 IG ID">
-            <div class="ig-notice">
-                為了確保能傳送確認信息<br>請務必追蹤我們的官方帳號<br>
-                <a href="https://www.instagram.com/twlmsh707" target="_blank">追蹤 @twlmsh707</a>
-            </div>
         </div>
-
         <button class="btn" onclick="goToReview()">核對訂單</button>
         <button class="btn btn-secondary" onclick="backToCart()">返回修改</button>
     </div>
 
+    <!-- 最終確認 -->
     <div id="page-review" class="hidden">
         <h2>確認訂單</h2>
         <div class="summary-box" id="final-summary"></div>
-        <p class="warning-text">請確認上方資訊無誤後，即可送出訂單</p>
         <button class="btn" onclick="submitFinalOrder()" id="submitBtn">確認送出訂單</button>
         <button class="btn btn-secondary" onclick="modifyInfo()">返回修改資訊</button>
     </div>
@@ -137,74 +116,140 @@
     let cart = {};
 
     window.onload = async function() {
-        toggleUserForm(); // 初始化表單標籤狀態
+        toggleUserForm();
         try {
             const resp = await fetch('/api/menu');
             menuData = await resp.json();
+            
+            // 初始化購物車結構
+            menuData.forEach(item => {
+                let activePrice = (item.prePrice && item.prePrice > 0) ? item.prePrice : item.price;
+                cart[item.id] = { name: item.name, price: activePrice, qty: 0 };
+            });
             renderMenu(); 
-        } catch (err) {
-            document.getElementById('menu-list').innerHTML = '<p style="text-align:center; color:red;">連線異常，請重新整理</p>';
-        }
+        } catch (err) { alert("連線異常"); }
     };
+
+    // 🌟 核心防護：計算庫存是否足夠
+    function canAddStock(id, qtyToAdd) {
+        let item = menuData.find(i => i.id === id);
+        if (!item) return false;
+
+        const getUsedQty = (singleItemId) => {
+            let used = cart[singleItemId] ? cart[singleItemId].qty : 0;
+            menuData.filter(i => i.type === 'combo').forEach(combo => {
+                if (combo.comboItems && combo.comboItems.includes(singleItemId)) {
+                    used += cart[combo.id] ? cart[combo.id].qty : 0;
+                }
+            });
+            return used;
+        };
+
+        if (item.type === 'item') {
+            return (getUsedQty(id) + qtyToAdd) <= item.stock;
+        } else if (item.type === 'combo') {
+            if (!item.comboItems || item.comboItems.length === 0) return true;
+            for (let cId of item.comboItems) {
+                let sItem = menuData.find(i => i.id === cId);
+                if (sItem && (getUsedQty(cId) + qtyToAdd) > sItem.stock) return false;
+            }
+            return true;
+        }
+        return false;
+    }
 
     function renderMenu() {
         const menuList = document.getElementById('menu-list');
-        menuList.innerHTML = '';
-        if (menuData.length === 0) { menuList.innerHTML = '<p style="text-align:center;">商品準備中...</p>'; return; }
+        const comboList = document.getElementById('combo-list');
+        menuList.innerHTML = ''; comboList.innerHTML = '';
 
-        menuData.forEach((item, index) => {
-            let activePrice = (item.prePrice && item.prePrice > 0) ? item.prePrice : item.price;
-            if (!cart[item.id]) cart[item.id] = { name: item.name, price: activePrice, qty: 0 };
-            
-            let priceHtml = '';
-            if (item.prePrice && item.prePrice > 0) {
-                priceHtml = `<span class="old-price">$${item.price}</span><span class="new-price"><span style="font-size: 0.85rem; margin-right: 4px; color: var(--accent);">預購價</span>$${item.prePrice}</span>`;
-            } else {
-                priceHtml = `<span class="new-price">$${item.price}</span>`;
-            }
+        let singleItems = menuData.filter(i => i.type === 'item');
+        let combos = menuData.filter(i => i.type === 'combo');
 
+        // 渲染單點商品
+        singleItems.forEach((item) => {
+            let priceHtml = item.prePrice > 0 ? `<span class="old-price">$${item.price}</span><span class="new-price"><span style="font-size:0.85rem; margin-right:4px;">預購價</span>$${item.prePrice}</span>` : `<span class="new-price">$${item.price}</span>`;
             let imgSrc = item.img ? item.img : 'https://via.placeholder.com/80/f5f5f7/86868b?text=Image';
+            let canAdd = canAddStock(item.id, 1);
 
             menuList.innerHTML += `
-                <div class="menu-item fade-in" style="animation-delay: ${index * 0.05}s">
-                    <img src="${imgSrc}" onerror="this.src='https://via.placeholder.com/80/f5f5f7/86868b?text=Error'">
+                <div class="menu-item fade-in">
+                    <img src="${imgSrc}">
                     <div class="item-info">
                         <p class="item-title">${item.name}</p>
                         <div class="price-area">${priceHtml}</div>
                     </div>
                     <div class="qty-controls">
-                        <button class="qty-btn" onclick="updateQty('${item.id}', -1)">-</button>
-                        <span class="qty-display" id="qty-${item.id}">${cart[item.id].qty}</span>
-                        <button class="qty-btn" onclick="updateQty('${item.id}', 1)">+</button>
+                        ${(canAdd || cart[item.id].qty > 0) ? `
+                            <button class="qty-btn" onclick="updateQty('${item.id}', -1)">-</button>
+                            <span class="qty-display" id="qty-${item.id}">${cart[item.id].qty}</span>
+                            <button class="qty-btn" onclick="updateQty('${item.id}', 1)" ${!canAdd ? 'disabled style="opacity:0.3"' : ''}>+</button>
+                        ` : `<span style="color:var(--danger); font-weight:700; font-size:0.9rem; padding:0 10px;">已售完</span>`}
                     </div>
                 </div>
             `;
         });
+
+        // 渲染套餐區塊
+        if (combos.length > 0) {
+            comboList.innerHTML = '<div class="section-title">✨ 超值套餐組合</div>';
+            combos.forEach((item) => {
+                let priceHtml = item.prePrice > 0 ? `<span class="old-price">$${item.price}</span><span class="new-price"><span style="font-size:0.85rem; margin-right:4px;">優惠價</span>$${item.prePrice}</span>` : `<span class="new-price">$${item.price}</span>`;
+                let canAdd = canAddStock(item.id, 1);
+                
+                // 翻譯套餐內容的 ID 變成文字
+                let comboNames = item.comboItems.map(cId => {
+                    let sItem = menuData.find(i => i.id === cId);
+                    return sItem ? sItem.name : '未知商品';
+                }).join(' + ');
+
+                comboList.innerHTML += `
+                    <div class="menu-item fade-in" style="align-items:flex-start;">
+                        <div class="item-info">
+                            <p class="item-title">${item.name}</p>
+                            <div class="combo-desc">包含：${comboNames}</div>
+                            <div class="price-area">${priceHtml}</div>
+                        </div>
+                        <div class="qty-controls" style="margin-top:10px;">
+                            ${(canAdd || cart[item.id].qty > 0) ? `
+                                <button class="qty-btn" onclick="updateQty('${item.id}', -1)">-</button>
+                                <span class="qty-display" id="qty-${item.id}">${cart[item.id].qty}</span>
+                                <button class="qty-btn" onclick="updateQty('${item.id}', 1)" ${!canAdd ? 'disabled style="opacity:0.3"' : ''}>+</button>
+                            ` : `<span style="color:var(--danger); font-weight:700; font-size:0.9rem; padding:0 10px;">已售完</span>`}
+                        </div>
+                    </div>
+                `;
+            });
+        }
     }
 
     function updateQty(id, change) {
+        if (change > 0 && !canAddStock(id, 1)) {
+            alert("商品庫存不足，無法再加購囉！");
+            return;
+        }
         let newQty = cart[id].qty + change;
         if (newQty < 0) newQty = 0;
         cart[id].qty = newQty;
         document.getElementById(`qty-${id}`).innerText = newQty;
         document.getElementById('cart-count').innerText = Object.values(cart).reduce((sum, item) => sum + item.qty, 0);
+        
+        // 重新渲染以更新其他關聯按鈕的狀態 (例如單點買完，套餐也要立刻變灰)
+        renderMenu();
     }
 
+    // 後續換頁與結帳邏輯保留
     function goToCart() {
         if (Object.values(cart).reduce((sum, item) => sum + item.qty, 0) === 0) return alert("購物車還是空的喔！");
         const cartItemsDiv = document.getElementById('cart-items');
-        let html = '';
-        let totalAmt = 0;
+        let html = ''; let totalAmt = 0;
         Object.values(cart).forEach(item => {
             if (item.qty > 0) {
-                let subtotal = item.price * item.qty;
-                totalAmt += subtotal;
-                html += `<div class="summary-item"><span><b>${item.name}</b> <span style="color:#86868b">x ${item.qty}</span></span><span style="font-weight:600">$${subtotal}</span></div>`;
+                html += `<div class="summary-item"><span><b>${item.name}</b> <span style="color:#86868b">x ${item.qty}</span></span><span style="font-weight:600">$${item.price * item.qty}</span></div>`;
+                totalAmt += (item.price * item.qty);
             }
         });
-        cartItemsDiv.innerHTML = html;
-        document.getElementById('cart-total').innerText = totalAmt;
-        switchPage('page-cart');
+        cartItemsDiv.innerHTML = html; document.getElementById('cart-total').innerText = totalAmt; switchPage('page-cart');
     }
 
     function backToMenu() { switchPage('page-menu'); }
@@ -213,21 +258,9 @@
 
     function toggleUserForm() {
         const isStudent = document.querySelector('input[name="userType"]:checked').value === 'student';
-        const studentFields = document.getElementById('student-fields');
-        const phoneLabel = document.getElementById('phoneLabel');
-        const igLabel = document.getElementById('igLabel');
-        
-        if(isStudent) {
-            studentFields.classList.remove('hidden');
-            studentFields.classList.add('fade-in');
-            phoneLabel.innerText = "聯絡電話 (與 IG 擇一填寫)";
-            igLabel.innerText = "Instagram 帳號 (與電話擇一填寫)";
-        } else {
-            studentFields.classList.remove('fade-in');
-            studentFields.classList.add('hidden');
-            phoneLabel.innerText = "聯絡電話 (必填)";
-            igLabel.innerText = "Instagram 帳號 (選填)";
-        }
+        document.getElementById('student-fields').classList.toggle('hidden', !isStudent);
+        document.getElementById('phoneLabel').innerText = isStudent ? "聯絡電話 (與 IG 擇一填寫)" : "聯絡電話 (必填)";
+        document.getElementById('igLabel').innerText = isStudent ? "Instagram 帳號 (與電話擇一填寫)" : "Instagram 帳號 (選填)";
     }
 
     function goToReview() {
@@ -239,90 +272,54 @@
         const igInfo = document.getElementById('igInfo').value.trim();
 
         if (!name) return alert("請填寫您的姓名");
-        
         let identityStr = '';
         if (type === 'student') {
             if (!classInfo || !seatInfo) return alert("請填寫班級與座號");
-            if (!phoneInfo && !igInfo) return alert("請至少填寫「聯絡電話」或「IG 帳號」其中一項以便聯絡！");
-            
-            identityStr = `${classInfo}班 ${seatInfo}號<br>`;
-            if (phoneInfo) identityStr += `電話: ${phoneInfo}<br>`;
-            if (igInfo) identityStr += `IG: @${igInfo}`;
+            if (!phoneInfo && !igInfo) return alert("請至少填寫「聯絡電話」或「IG 帳號」！");
+            identityStr = `${classInfo}班 ${seatInfo}號<br>` + (phoneInfo ? `電話: ${phoneInfo}<br>` : '') + (igInfo ? `IG: @${igInfo}` : '');
         } else {
-            if (!phoneInfo) return alert("訪客/家長請務必填寫聯絡電話！");
-            
-            identityStr = `電話: ${phoneInfo}<br>`;
-            if (igInfo) identityStr += `IG: @${igInfo}`;
+            if (!phoneInfo) return alert("請務必填寫聯絡電話！");
+            identityStr = `電話: ${phoneInfo}<br>` + (igInfo ? `IG: @${igInfo}` : '');
         }
 
         userInfo = { type, name, identity: identityStr };
-
-        const summaryDiv = document.getElementById('final-summary');
-        let html = `<div style="margin-bottom:20px;"><p style="margin:0 0 5px 0; color:#86868b; font-size:0.9rem">訂購人</p><p style="margin:0; font-weight:600; font-size:1.1rem">${userInfo.name}</p></div>`;
-        html += `<div style="margin-bottom:20px;"><p style="margin:0 0 5px 0; color:#86868b; font-size:0.9rem">聯絡資訊</p><p style="margin:0; font-weight:600; line-height:1.5">${userInfo.identity}</p></div>`;
-        html += `<hr style="border:0; border-top:1px solid #e5e5ea; margin:20px 0;"><p style="margin:0 0 15px 0; color:#86868b; font-size:0.9rem">餐點明細</p>`;
-        
+        let html = `<p><b>訂購人：</b> ${userInfo.name}</p><p><b>聯絡資訊：</b><br>${userInfo.identity}</p><hr><p><b>餐點明細：</b></p>`;
         let totalAmt = 0;
         Object.values(cart).forEach(item => {
-            if (item.qty > 0) {
-                html += `<div class="summary-item"><span>${item.name} <span style="color:#86868b">x ${item.qty}</span></span><span style="font-weight:600">$${item.price * item.qty}</span></div>`;
-                totalAmt += (item.price * item.qty);
-            }
+            if (item.qty > 0) { html += `<p>${item.name} x ${item.qty} ($${item.price * item.qty})</p>`; totalAmt += (item.price * item.qty); }
         });
-        html += `<hr style="border:0; border-top:1px solid #e5e5ea; margin:20px 0;"><div style="display:flex; justify-content:space-between; align-items:center;"><span style="font-weight:600; font-size:1.2rem;">應付總額</span><span style="font-weight:800; font-size:1.8rem; color:var(--accent)">$${totalAmt}</span></div>`;
-        
-        summaryDiv.innerHTML = html;
-        switchPage('page-review');
+        html += `<hr><h2>應付總額：$${totalAmt}</h2>`;
+        document.getElementById('final-summary').innerHTML = html; switchPage('page-review');
     }
 
     function modifyInfo() { switchPage('page-login'); }
 
     async function submitFinalOrder() {
-        const btn = document.getElementById('submitBtn');
-        btn.innerText = "處理中...";
-        btn.disabled = true;
+        document.getElementById('submitBtn').innerText = "處理中...";
+        document.getElementById('submitBtn').disabled = true;
 
-        let orderItems = '';
-        let totalAmt = 0;
-        Object.values(cart).forEach(item => {
+        let orderItems = ''; let totalAmt = 0; let rawCart = {};
+        Object.keys(cart).forEach(id => {
+            let item = cart[id];
             if (item.qty > 0) {
                 orderItems += `${item.name} <span style="color:#86868b">x${item.qty}</span><br>`;
                 totalAmt += (item.price * item.qty);
+                rawCart[id] = item.qty; // 記錄要扣庫存的資料
             }
         });
 
-        const newOrder = { time: new Date().toLocaleTimeString('zh-TW', {hour12: false}), name: userInfo.name, identity: userInfo.identity, items: orderItems, total: totalAmt };
+        const orderData = { time: new Date().toLocaleTimeString('zh-TW', {hour12: false}), name: userInfo.name, identity: userInfo.identity, items: orderItems, total: totalAmt };
 
         try {
-            const updateResp = await fetch('/api/orders', {
-                method: 'POST',
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(newOrder)
-            });
-
-            if (updateResp.ok) {
-                alert("🎉 訂單已成功送出！期待在園遊會見到您！");
-                location.reload(); 
-            } else {
-                throw new Error("API Error");
-            }
-        } catch (err) {
-            alert("伺服器繁忙中，請稍後再試");
-            btn.innerText = "確認送出訂單";
-            btn.disabled = false;
-        }
+            const resp = await fetch('/api/orders', { method: 'POST', headers: { "Content-Type": "application/json" }, body: JSON.stringify({ orderData, rawCart }) });
+            if (resp.ok) { alert("🎉 訂單已成功送出！期待在園遊會見到您！"); location.reload(); } else { throw new Error(); }
+        } catch (err) { alert("伺服器繁忙中，請稍後再試"); document.getElementById('submitBtn').innerText = "確認送出訂單"; document.getElementById('submitBtn').disabled = false; }
     }
 
     function switchPage(pageId) {
-        document.querySelectorAll('.app-container > div').forEach(div => {
-            div.classList.add('hidden');
-            div.classList.remove('fade-in');
-        });
-        const target = document.getElementById(pageId);
-        target.classList.remove('hidden');
-        void target.offsetWidth;
-        target.classList.add('fade-in');
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        document.querySelectorAll('.app-container > div').forEach(div => div.classList.add('hidden'));
+        document.getElementById(pageId).classList.remove('hidden');
+        window.scrollTo(0, 0);
     }
 </script>
 </body>
