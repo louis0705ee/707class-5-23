@@ -2,7 +2,7 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>🎡 園遊會預購系統</title>
     <style>
         :root {
@@ -15,6 +15,7 @@
             --shadow: 0 20px 40px rgba(0,0,0,0.06);
             --radius: 20px;
         }
+        html { -webkit-text-size-adjust: 100%; font-size: 16px; }
         body { font-family: -apple-system, BlinkMacSystemFont, "PingFang TC", "Microsoft JhengHei", sans-serif; background: var(--bg-color); margin: 0; padding: 0; display: flex; justify-content: center; color: var(--text-main); -webkit-font-smoothing: antialiased; }
         .app-container { width: 100%; max-width: 480px; background: var(--card-bg); min-height: 100vh; padding: 30px 25px; box-sizing: border-box; box-shadow: var(--shadow); position: relative; }
         .hidden { display: none !important; }
@@ -26,7 +27,7 @@
         
         .form-group { margin-bottom: 20px; }
         label { display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-main); font-size: 0.95rem; }
-        input[type="text"], input[type="tel"], input[type="number"] { width: 100%; padding: 15px; border: 1px solid transparent; background: #f5f5f7; border-radius: 12px; box-sizing: border-box; font-size: 1rem; transition: 0.3s; outline: none; }
+        input[type="text"], input[type="tel"], input[type="number"] { width: 100%; padding: 15px; border: 1px solid transparent; background: #f5f5f7; border-radius: 12px; box-sizing: border-box; font-size: 16px; transition: 0.3s; outline: none; -webkit-appearance: none; }
         input[type="text"]:focus, input[type="tel"]:focus, input[type="number"]:focus { border-color: #0071e3; background: #fff; box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.1); }
         
         .radio-group { display: flex; gap: 15px; margin-bottom: 15px; }
@@ -70,9 +71,10 @@
 
 <div class="app-container">
     <div id="page-menu" class="fade-in">
-        <h2>花果山預購菜單</h2>
+        <h2 style="margin-bottom: 10px;">花果山預購菜單</h2>
+        <p style="text-align:center; color:#86868b; font-size: 0.85rem; margin-top: 0; margin-bottom: 25px;">* 圖片僅供參考，請以實物為準</p>
         <div id="menu-list"><p style="text-align:center; color:#86868b;">美味載入中，請稍候...</p></div>
-        <div class="cart-bar"><button class="btn" onclick="goToCart()">前往購物車 (<span id="cart-count">0</span>)</button></div>
+        <div class="cart-bar"><button class="btn" onclick="goToCart()">前往結帳 (<span id="cart-count">0</span>)</button></div>
     </div>
 
     <div id="page-cart" class="hidden">
@@ -93,21 +95,22 @@
             <label for="type-outsider" class="radio-label">訪客 / 家長</label>
         </div>
         
+        <div class="form-group"><label>姓名 (必填)</label><input type="text" id="userName" placeholder="如何稱呼您"></div>
+        
         <div id="student-fields" class="fade-in">
             <div style="display: flex; gap: 15px;">
-                <div class="form-group" style="flex: 1;"><label>班級 (必填)</label><input type="text" id="classInfo" placeholder="如: 國一和"></div>
-                <div class="form-group" style="flex: 1;"><label>座號 (必填)</label><input type="number" id="seatInfo" placeholder="如: 41"></div>
+                <div class="form-group" style="flex: 1;"><label>班級 (必填)</label><input type="text" id="classInfo" placeholder="如: 107"></div>
+                <div class="form-group" style="flex: 1;"><label>座號 (必填)</label><input type="number" id="seatInfo" placeholder="如: 5"></div>
             </div>
         </div>
         
-        <div id="outsider-fields" class="hidden">
-            <div class="form-group"><label>聯絡電話 (必填)</label><input type="tel" id="phoneInfo" placeholder="您的手機號碼"></div>
+        <div class="form-group">
+            <label id="phoneLabel">聯絡電話 (與 IG 擇一填寫)</label>
+            <input type="tel" id="phoneInfo" placeholder="您的手機號碼">
         </div>
         
-        <div class="form-group"><label>姓名 (必填)</label><input type="text" id="userName" placeholder="如何稱呼您"></div>
-        
         <div class="form-group">
-            <label>Instagram 帳號 (必填)</label>
+            <label id="igLabel">Instagram 帳號 (與電話擇一填寫)</label>
             <input type="text" id="igInfo" placeholder="您的 IG ID">
             <div class="ig-notice">
                 為了確保能即時通知您取餐<br>請務必追蹤我們的官方帳號<br>
@@ -134,6 +137,7 @@
     let cart = {};
 
     window.onload = async function() {
+        toggleUserForm(); // 初始化表單標籤狀態
         try {
             const resp = await fetch('/api/menu');
             menuData = await resp.json();
@@ -154,7 +158,6 @@
             
             let priceHtml = '';
             if (item.prePrice && item.prePrice > 0) {
-                // 在這裡加入了「預購價」三個字，並微調字體大小與間距
                 priceHtml = `<span class="old-price">$${item.price}</span><span class="new-price"><span style="font-size: 0.85rem; margin-right: 4px; color: var(--accent);">預購價</span>$${item.prePrice}</span>`;
             } else {
                 priceHtml = `<span class="new-price">$${item.price}</span>`;
@@ -211,16 +214,19 @@
     function toggleUserForm() {
         const isStudent = document.querySelector('input[name="userType"]:checked').value === 'student';
         const studentFields = document.getElementById('student-fields');
-        const outsiderFields = document.getElementById('outsider-fields');
+        const phoneLabel = document.getElementById('phoneLabel');
+        const igLabel = document.getElementById('igLabel');
         
         if(isStudent) {
             studentFields.classList.remove('hidden');
             studentFields.classList.add('fade-in');
-            outsiderFields.classList.add('hidden');
+            phoneLabel.innerText = "聯絡電話 (與 IG 擇一填寫)";
+            igLabel.innerText = "Instagram 帳號 (與電話擇一填寫)";
         } else {
-            outsiderFields.classList.remove('hidden');
-            outsiderFields.classList.add('fade-in');
+            studentFields.classList.remove('fade-in');
             studentFields.classList.add('hidden');
+            phoneLabel.innerText = "聯絡電話 (必填)";
+            igLabel.innerText = "Instagram 帳號 (選填)";
         }
     }
 
@@ -233,15 +239,20 @@
         const igInfo = document.getElementById('igInfo').value.trim();
 
         if (!name) return alert("請填寫您的姓名");
-        if (!igInfo) return alert("請填寫您的 IG 帳號以便聯絡");
         
         let identityStr = '';
         if (type === 'student') {
             if (!classInfo || !seatInfo) return alert("請填寫班級與座號");
-            identityStr = `${classInfo}班 ${seatInfo}號<br>IG: @${igInfo}`;
+            if (!phoneInfo && !igInfo) return alert("請至少填寫「聯絡電話」或「IG 帳號」其中一項以便聯絡！");
+            
+            identityStr = `${classInfo}班 ${seatInfo}號<br>`;
+            if (phoneInfo) identityStr += `電話: ${phoneInfo}<br>`;
+            if (igInfo) identityStr += `IG: @${igInfo}`;
         } else {
-            if (!phoneInfo) return alert("請填寫聯絡電話");
-            identityStr = `電話: ${phoneInfo}<br>IG: @${igInfo}`;
+            if (!phoneInfo) return alert("訪客/家長請務必填寫聯絡電話！");
+            
+            identityStr = `電話: ${phoneInfo}<br>`;
+            if (igInfo) identityStr += `IG: @${igInfo}`;
         }
 
         userInfo = { type, name, identity: identityStr };
