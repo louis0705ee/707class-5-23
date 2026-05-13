@@ -1,9 +1,10 @@
+<!-- admin.html (請完全覆蓋) -->
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🍔 園遊會後台 </title>
+    <title> 園遊會</title>
     <style>
         body { font-family: "Microsoft JhengHei", sans-serif; background: #2c3e50; color: white; margin: 0; padding: 20px; }
         
@@ -47,7 +48,7 @@
             <button onclick="loadOrders()">🔄 重新整理最新訂單</button>
         </div>
         <table>
-            <thead><tr><th>時間</th><th>姓名 / 聯絡方式</th><th>餐點明細</th><th>總金額</th></tr></thead>
+            <thead><tr><th>時間</th><th>姓名 / 聯絡方式</th><th>餐點明細</th><th>總金額</th><th width="80">操作</th></tr></thead>
             <tbody id="order-list"></tbody>
         </table>
     </div>
@@ -77,6 +78,7 @@
 
 <script>
     let currentMenu = [];
+    let currentOrders = [];
 
     async function checkLogin() {
         const user = document.getElementById('adminUser').value;
@@ -102,19 +104,53 @@
         }
     }
 
+    // --- 訂單讀取與渲染 ---
     async function loadOrders() {
-        document.getElementById('order-list').innerHTML = '<tr><td colspan="4">讀取中...</td></tr>';
+        document.getElementById('order-list').innerHTML = '<tr><td colspan="5">讀取中...</td></tr>';
         try {
             const resp = await fetch('/api/orders');
-            const orders = await resp.json();
-            let html = '';
-            orders.forEach(order => {
-                html += `<tr><td>${order.time}</td><td><b>${order.name}</b><br><small>${order.identity}</small></td><td style="text-align:left;">${order.items}</td><td style="color:#e74c3c; font-weight:bold; font-size:1.1em;">$${order.total}</td></tr>`;
-            });
-            document.getElementById('order-list').innerHTML = html || '<tr><td colspan="4">目前還沒有訂單喔</td></tr>';
+            currentOrders = await resp.json();
+            renderOrders();
         } catch (err) { alert('訂單讀取失敗'); }
     }
 
+    function renderOrders() {
+        let html = '';
+        currentOrders.forEach((order, index) => {
+            html += `<tr>
+                <td>${order.time}</td>
+                <td><b>${order.name}</b><br><small>${order.identity}</small></td>
+                <td style="text-align:left;">${order.items}</td>
+                <td style="color:#e74c3c; font-weight:bold; font-size:1.1em;">$${order.total}</td>
+                <td><button class="red" onclick="deleteOrder(${index})">刪除</button></td>
+            </tr>`;
+        });
+        document.getElementById('order-list').innerHTML = html || '<tr><td colspan="5">目前還沒有訂單喔</td></tr>';
+    }
+
+    // --- 刪除單筆訂單 ---
+    async function deleteOrder(index) {
+        if(!confirm("⚠️ 確定要刪除這筆訂單嗎？（刪除後無法復原）")) return;
+        
+        // 從本機陣列中移除
+        currentOrders.splice(index, 1);
+        renderOrders(); // 先更新畫面
+        
+        // 同步覆蓋到雲端
+        try {
+            const resp = await fetch('/api/orders', {
+                method: 'PUT',
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(currentOrders)
+            });
+            if (!resp.ok) throw new Error();
+        } catch (e) {
+            alert("刪除失敗，請重新整理網頁");
+            loadOrders(); // 失敗則重新讀取
+        }
+    }
+
+    // --- 菜單管理 ---
     async function loadMenu() {
         document.getElementById('menu-edit-list').innerHTML = '<tr><td colspan="6">菜單讀取中...</td></tr>';
         try {
