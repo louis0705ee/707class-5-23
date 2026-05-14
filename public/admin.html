@@ -80,7 +80,7 @@
             <h2>🍔 單點與庫存管理</h2>
             <div><button class="green" onclick="addSingle()">＋ 新增單品</button> <button onclick="saveAll()" style="background:var(--primary)">💾 全部保存</button></div>
         </div>
-        <p style="color:#86868b; font-size:0.9rem;">這裡設定所有的單一商品，包含主餐、飲料、配料(如加蛋)。設定好後，下方套餐才能選擇！</p>
+        <p style="color:#86868b; font-size:0.9rem;">這裡設定所有的單一商品，包含主餐、飲料、配料。設定好後，下方套餐才能選擇！</p>
         <table>
             <thead><tr><th>名稱</th><th width="80">原價</th><th width="80">特價</th><th width="90">庫存</th><th>圖片連結</th><th width="70">操作</th></tr></thead>
             <tbody id="single-list"></tbody>
@@ -143,17 +143,24 @@
     async function loadMenu() {
         const resp = await fetch('/api/menu');
         let data = await resp.json();
-        singles = data.filter(i => i.type === 'item');
-        combos = data.filter(i => i.type === 'combo');
         
-        // 給新手預設範例
-        if(singles.length === 0) {
-            singles = [
-                {id: "m1", type: "item", name: "炒泡麵", price: 50, prePrice: 0, stock: 50, img: ""},
-                {id: "m2", type: "item", name: "紅茶", price: 20, prePrice: 0, stock: 50, img: ""},
-                {id: "m3", type: "item", name: "加一顆蛋", price: 15, prePrice: 0, stock: 30, img: ""}
-            ];
-        }
+        singles = data.filter(i => i.type === 'item');
+        
+        // 🚨 自動修復防呆機制：確保即使讀到舊版資料，也不會當機！
+        combos = data.filter(i => i.type === 'combo').map(c => {
+            return {
+                id: c.id,
+                type: 'combo',
+                name: c.name || '未命名套餐',
+                price: c.price || 0,
+                prePrice: c.prePrice || 0,
+                img: c.img || '',
+                mainItem: c.mainItem || '', // 如果舊版沒主餐，預設為空
+                drinks: c.drinks || [],     // 如果舊版沒飲料陣列，自動補上空陣列
+                extras: c.extras || []      // 同上
+            };
+        });
+        
         renderAll();
     }
 
@@ -189,7 +196,6 @@
             // 飲料與加購列表生成
             let drinkHtml = ''; let extraHtml = '';
             singles.forEach(s => {
-                // 找找看這個套餐有沒有勾選這個飲料或加購，並拿出設定的差價
                 let dMatch = combo.drinks.find(d => d.id === s.id);
                 let eMatch = combo.extras.find(e => e.id === s.id);
                 
