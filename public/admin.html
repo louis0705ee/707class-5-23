@@ -111,7 +111,7 @@
         </div>
     </div>
 
-    <!-- 選項彈窗 -->
+    <!-- 選項彈窗 (Uber Eats 風格) -->
     <div class="modal-overlay" id="itemModal" onclick="closeModal(event)">
         <div class="modal-content" onclick="event.stopPropagation()">
             <div style="margin-bottom: 20px; padding-bottom:15px; border-bottom:1px solid #f1f2f6;">
@@ -123,10 +123,14 @@
             <form id="options-form"></form>
             
             <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 25px;">
-                <div class="qty-controls">
-                    <button type="button" class="qty-btn" id="modal-btn-minus" onclick="changeModalQty(-1)">-</button>
-                    <span class="qty-display" id="modal-qty">1</span>
-                    <button type="button" class="qty-btn" id="modal-btn-plus" onclick="changeModalQty(1)">+</button>
+                <!-- 🌟 加入庫存視覺化提示 -->
+                <div style="display:flex; flex-direction:column; align-items:center;">
+                    <div class="qty-controls">
+                        <button type="button" class="qty-btn" id="modal-btn-minus" onclick="changeModalQty(-1)">-</button>
+                        <span class="qty-display" id="modal-qty">1</span>
+                        <button type="button" class="qty-btn" id="modal-btn-plus" onclick="changeModalQty(1)">+</button>
+                    </div>
+                    <div id="modal-stock-hint" style="font-size:0.75rem; color:#86868b; margin-top:5px;"></div>
                 </div>
                 <button class="btn" style="margin: 0; width: auto; flex: 1; margin-left: 15px;" onclick="addToCart()">加入購物車 - <span id="modal-total-btn">$0</span></button>
             </div>
@@ -192,7 +196,15 @@
         toggleUserForm();
         try {
             const resp = await fetch('/api/menu');
-            menuData = await resp.json();
+            let rawData = await resp.json();
+            
+            // 🚨 最重要的資料防護牆：把所有庫存強制清洗為安全數字
+            menuData = rawData.map(item => {
+                let s = parseInt(item.stock, 10);
+                item.stock = isNaN(s) ? 0 : s; // 遇到壞掉的 NaN 資料，直接視為庫存 0
+                return item;
+            });
+            
             renderMenu(); 
         } catch (err) { document.getElementById('single-list').innerHTML = '<p style="color:red; text-align:center;">連線異常，請重新整理</p>'; }
     };
@@ -200,6 +212,7 @@
     function getAvailableStock(itemId) {
         let item = menuData.find(i => i.id === itemId);
         if(!item) return 0;
+        
         let used = 0;
         cart.forEach(cItem => {
             if(cItem.id === itemId) used += cItem.qty;
@@ -239,9 +252,14 @@
 
         if (currentModalQty >= maxAvail) { btnPlus.style.opacity = '0.3'; btnPlus.disabled = true; } 
         else { btnPlus.style.opacity = '1'; btnPlus.disabled = false; }
+
+        // 視覺化提示客人目前的購買上限
+        let stockHint = document.getElementById('modal-stock-hint');
+        if(stockHint) {
+            stockHint.innerText = `(此組合最多買 ${maxAvail} 份)`;
+        }
     }
 
-    // 🌟 核心防Bug提示功能：檢查庫存並給予說明
     function checkOptionStock(input) {
         if (!input.checked) {
             calculateModalTotal();
@@ -251,17 +269,15 @@
         let data = JSON.parse(input.value);
         let avail = getAvailableStock(data.id);
         
-        // 如果客人點了「已經完全沒庫存」的選項
         if (avail < 1) {
-            alert(`⚠️ 系統取消打勾：因為【${data.name}】剛剛賣完囉，請選擇其他品項！`);
-            input.checked = false; // 強制幫客人取消打勾
+            alert(`⚠️ 系統取消打勾：因為【${data.name}】剛剛賣完囉，請選擇其他配料！`);
+            input.checked = false;
             calculateModalTotal();
             return;
         }
 
-        // 如果客人選的數量大於該選項的剩餘庫存，系統自動調降總數量
         if (currentModalQty > avail) {
-            alert(`⚠️ 系統提醒：因為【${data.name}】的庫存只剩 ${avail} 份，所以本餐點的購買數量已自動幫您調整為 ${avail} 份喔！`);
+            alert(`⚠️ 數量調整提醒：因為【${data.name}】只剩下 ${avail} 份，所以您的購買數量已自動調降為 ${avail} 份喔！`);
             currentModalQty = avail;
             document.getElementById('modal-qty').innerText = currentModalQty;
         }
@@ -328,7 +344,6 @@
             let mainData = menuData.find(m => m.id === currentModalItem.mainItem);
             document.getElementById('modal-desc').innerText = `✅ 主餐：${mainData?mainData.name:'已綁定'}`;
 
-            // 1. 飲料區
             if(currentModalItem.drinks && currentModalItem.drinks.length > 0) {
                 let dHtml = `<div class="option-group"><div class="option-group-title">選擇飲料 <span class="option-required">必選1項</span></div>`;
                 currentModalItem.drinks.forEach(d => {
@@ -337,7 +352,6 @@
                     let outOfStock = getAvailableStock(d.id) < 1;
                     let priceStr = d.priceAdd > 0 ? `<span class="option-price">+$${d.priceAdd}</span>` : '';
                     
-                    // 🚨 注意：這裡移除了 disabled，讓客人可以點擊並觸發解釋通知
                     dHtml += `<label class="option-row" style="${outOfStock?'opacity:0.5':''}">
                         <div class="option-label">
                             <input type="radio" class="option-input" name="drink" value='{"id":"${d.id}","name":"${dData.name}","priceAdd":${d.priceAdd}}' onchange="checkOptionStock(this)">
@@ -350,7 +364,6 @@
                 form.innerHTML += dHtml;
             }
 
-            // 2. 配餐區
             if(currentModalItem.sides && currentModalItem.sides.length > 0) {
                 let sHtml = `<div class="option-group"><div class="option-group-title">選擇配餐 <span class="option-required">必選1項</span></div>`;
                 currentModalItem.sides.forEach(s => {
@@ -371,7 +384,6 @@
                 form.innerHTML += sHtml;
             }
 
-            // 3. 加購區
             if(currentModalItem.extras && currentModalItem.extras.length > 0) {
                 let eHtml = `<div class="option-group"><div class="option-group-title">加購好料 <span style="font-size:0.8rem; color:#86868b; font-weight:normal;">(可複選)</span></div>`;
                 currentModalItem.extras.forEach(e => {
@@ -407,9 +419,8 @@
         
         let maxAvail = getMaxAvailableForCurrentSelection();
         
-        // 提醒客人為什麼按不上去
         if (change > 0 && currentModalQty >= maxAvail) {
-            alert(`⚠️ 已經達到庫存上限囉！因為您選擇的配料或主餐目前最多只能購買 ${maxAvail} 份。`);
+            alert(`⚠️ 已經達到庫存上限囉！因為您選擇的主餐或配料最多只能供應 ${maxAvail} 份。`);
             return;
         }
         
@@ -430,6 +441,13 @@
             document.querySelectorAll('.option-extra:checked').forEach(chk => {
                 optionsTotal += JSON.parse(chk.value).priceAdd;
             });
+        }
+
+        let maxAvail = getMaxAvailableForCurrentSelection();
+        if (currentModalQty > maxAvail) {
+            currentModalQty = maxAvail;
+            if (currentModalQty < 1 && maxAvail > 0) currentModalQty = 1;
+            document.getElementById('modal-qty').innerText = currentModalQty;
         }
 
         updateModalQtyButtons();
