@@ -11,24 +11,34 @@
         
         #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); backdrop-filter: blur(20px); display: flex; justify-content: center; align-items: center; z-index: 100; }
         .login-box { background: rgba(255,255,255,0.9); padding: 40px; border-radius: 24px; text-align: center; width: 90%; max-width: 320px; }
-        .login-box input { width: 100%; padding: 14px; margin: 10px 0; border: 1px solid #d2d2d7; border-radius: 12px; outline: none; }
-        .login-btn { width: 100%; padding: 14px; background: var(--text-main); color: white; border: none; border-radius: 12px; cursor: pointer; margin-top: 15px; }
+        .login-box input { width: 100%; padding: 14px; margin: 10px 0; border: 1px solid #d2d2d7; border-radius: 12px; outline: none; font-size: 16px;}
+        .login-btn { width: 100%; padding: 14px; background: var(--text-main); color: white; border: none; border-radius: 12px; cursor: pointer; margin-top: 15px; font-weight: bold;}
 
         #admin-panel { display: none; max-width: 1100px; margin: 0 auto; } 
         .header-title { font-weight: 700; font-size: 1.8rem; margin: 10px 0 30px 0; }
-        .container { background: var(--card-bg); padding: 30px; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.04); margin-bottom: 30px; }
+        .container { background: var(--card-bg); padding: 30px; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.04); margin-bottom: 30px; border: 1px solid #e5e5ea;}
         .container-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap:10px;}
         .container-header h2 { margin: 0; font-size: 1.4rem; }
         
         table { width: 100%; border-collapse: collapse; text-align: left; }
         th { padding: 15px; color: #86868b; font-size: 0.9rem; border-bottom: 2px solid #f5f5f7; }
         td { padding: 15px; border-bottom: 1px solid #f5f5f7; vertical-align: middle; }
-        td input { padding: 10px; width: 95%; box-sizing: border-box; border: 1px solid #e5e5ea; border-radius: 8px; }
+        td input[type="text"], td input[type="number"] { padding: 10px; width: 95%; box-sizing: border-box; border: 1px solid #e5e5ea; border-radius: 8px; font-size: 15px;}
         
-        button { padding: 10px 15px; background: var(--text-main); color: white; border: none; border-radius: 10px; cursor: pointer; margin-right: 5px; }
+        button { padding: 10px 15px; background: var(--text-main); color: white; border: none; border-radius: 10px; cursor: pointer; margin-right: 5px; font-weight: bold;}
         button.red { background: rgba(255, 59, 48, 0.1); color: var(--danger); }
         button.green { background: var(--success); color: white; }
         
+        /* 套餐卡片設計 */
+        .combo-card { background: #f9f9fb; border: 1px solid #e5e5ea; border-radius: 16px; padding: 20px; margin-bottom: 20px; }
+        .combo-row { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        .combo-row input, .combo-row select { padding: 10px; border: 1px solid #d2d2d7; border-radius: 8px; flex: 1; min-width: 120px; font-size: 15px;}
+        .combo-section-title { font-weight: bold; margin: 15px 0 10px 0; color: #0071e3; font-size: 1.1rem; border-bottom: 1px solid #d2d2d7; padding-bottom: 5px;}
+        
+        .option-item { display: flex; align-items: center; background: #fff; padding: 10px 15px; border-radius: 8px; border: 1px solid #e5e5ea; margin-bottom: 8px; gap: 10px;}
+        .option-item input[type="checkbox"] { transform: scale(1.3); margin-right: 10px; }
+        .option-item input[type="number"] { width: 80px; padding: 5px; border: 1px solid #d2d2d7; border-radius: 6px; }
+
         @media (max-width: 768px) {
             table, thead, tbody, th, td, tr { display: block; }
             thead tr { display: none; }
@@ -44,8 +54,8 @@
 <div id="login-screen">
     <div class="login-box">
         <h2>管理員登入</h2>
-        <input type="text" id="adminUser" placeholder="管理員帳號">
-        <input type="password" id="adminPass" placeholder="管理員密碼">
+        <input type="text" id="adminUser" placeholder="帳號 (twlmsh707)">
+        <input type="password" id="adminPass" placeholder="密碼">
         <button class="login-btn" onclick="checkLogin()">登入</button>
         <p id="errorMsg" style="color:var(--danger); display:none; margin-top:15px;">驗證失敗</p>
     </div>
@@ -56,76 +66,41 @@
     
     <div class="container">
         <div class="container-header">
-            <h2>即時訂單管理</h2>
-            <div><button onclick="exportOrders()">📥 匯出 Excel</button><button onclick="loadOrders()" style="background:#f5f5f7; color:#333;">↻ 整理</button></div>
+            <h2>📊 即時訂單管理</h2>
+            <div><button onclick="exportOrders()">📥 匯出 Excel</button><button onclick="loadOrders()" style="background:#e5e5ea; color:#333;">↻ 整理</button></div>
         </div>
         <table>
-            <thead><tr><th>下單時間</th><th>顧客資訊</th><th>餐點明細</th><th>金額</th><th>操作</th></tr></thead>
+            <thead><tr><th>時間</th><th>顧客</th><th>明細</th><th>金額</th><th>操作</th></tr></thead>
             <tbody id="order-list"></tbody>
         </table>
     </div>
 
     <div class="container">
         <div class="container-header">
-            <h2>📦 單點與套餐管理</h2>
-            <div style="display: flex; gap: 5px; flex-wrap: wrap;">
-                <!-- 💡 幫你把新增單點按鈕加回來了！ -->
-                <button class="green" onclick="addSingleItem()">＋ 新增單點</button>
-                <button onclick="resetMenuToDefault()" style="background:var(--danger);">⚠️ 載入你的專屬套餐</button> 
-                <button onclick="saveMenuToCloud()" style="background:var(--primary)">💾 保存發布</button>
-            </div>
+            <h2>🍔 單點與庫存管理</h2>
+            <div><button class="green" onclick="addSingle()">＋ 新增單品</button> <button onclick="saveAll()" style="background:var(--primary)">💾 全部保存</button></div>
         </div>
+        <p style="color:#86868b; font-size:0.9rem;">這裡設定所有的單一商品，包含主餐、飲料、配料(如加蛋)。設定好後，下方套餐才能選擇！</p>
         <table>
-            <thead><tr><th>分類</th><th>名稱</th><th width="80">原價</th><th width="80">特價</th><th width="90">庫存</th><th>圖片連結</th><th width="80">操作</th></tr></thead>
-            <tbody id="menu-edit-list"></tbody>
+            <thead><tr><th>名稱</th><th width="80">原價</th><th width="80">特價</th><th width="90">庫存</th><th>圖片連結</th><th width="70">操作</th></tr></thead>
+            <tbody id="single-list"></tbody>
         </table>
+    </div>
+
+    <div class="container">
+        <div class="container-header">
+            <h2>👑 Uber Eats 級套餐管理</h2>
+            <div><button class="green" onclick="addCombo()">＋ 新增套餐</button> <button onclick="saveAll()" style="background:var(--primary)">💾 全部保存</button></div>
+        </div>
+        <p style="color:#86868b; font-size:0.9rem;">指定一個主餐，並打勾選擇飲料與加購項目，可自由設定差價！(庫存會自動連動上方單點)</p>
+        <div id="combo-list"></div>
     </div>
 </div>
 
 <script>
-    let currentMenu = [];
-    let currentOrders = [];
-
-    // 🌟 這裡就是為你量身打造的專屬套餐邏輯！
-    const defaultMenu = [
-        // 🍔 這裡是你原本的單點，都可以隨便改！
-        { id: "m_main", type: "item", name: "招牌炒泡麵", desc: "主餐單點", price: 50, prePrice: 40, stock: 50, img: "", optionGroups: [] },
-        { id: "m_drink1", type: "item", name: "冰紅茶", desc: "解渴神飲", price: 20, prePrice: 0, stock: 50, img: "", optionGroups: [] },
-        { id: "m_drink2", type: "item", name: "特調奶茶", desc: "香濃好喝", price: 35, prePrice: 0, stock: 50, img: "", optionGroups: [] },
-
-        // 👑 這是你要求的「完美套餐」
-        {
-            id: "c_combo1", 
-            type: "combo", 
-            name: "吃飽飽超值套餐", 
-            desc: "含炒泡麵 + 飲料 (可加購蛋、換飲料補差價)", 
-            price: 70, 
-            prePrice: 60, 
-            img: "",
-            // 💡 庫存連動：買套餐，會自動去扣 m_main(炒泡麵) 跟 m_drink1(冰紅茶) 的庫存！
-            comboItems: ["m_main", "m_drink1"], 
-            optionGroups: [
-                { 
-                    name: "主餐加購", 
-                    required: false, // 不是必填，客人可以不加
-                    multiple: true,  // 允許客人複選
-                    options: [
-                        { name: "加一顆蛋", priceAdd: 15 }, // 💡 加蛋 +15元
-                        { name: "加起司", priceAdd: 10 }
-                    ] 
-                },
-                { 
-                    name: "選擇飲料", 
-                    required: true,  // 必填，一定要選一個飲料
-                    multiple: false, // 只能單選
-                    options: [
-                        { name: "冰紅茶", priceAdd: 0 }, 
-                        { name: "換特調奶茶", priceAdd: 15 } // 💡 換飲料自動 +15元！
-                    ] 
-                }
-            ]
-        }
-    ];
+    let singles = [];
+    let combos = [];
+    let orders = [];
 
     async function checkLogin() {
         const user = document.getElementById('adminUser').value;
@@ -140,105 +115,157 @@
 
     async function loadOrders() {
         const resp = await fetch('/api/orders');
-        currentOrders = await resp.json();
+        orders = await resp.json();
         let html = '';
-        currentOrders.forEach((order, i) => {
-            html += `<tr>
-                <td data-label="時間">${order.time}</td><td data-label="資訊"><b>${order.name}</b><br><small>${order.identity}</small></td>
-                <td data-label="明細" style="line-height:1.5;">${order.items}</td><td data-label="金額"><b>$${order.total}</b></td>
-                <td data-label="操作"><button class="red" onclick="deleteOrder(${i})">刪除</button></td>
-            </tr>`;
+        orders.forEach((o, i) => {
+            html += `<tr><td data-label="時間">${o.time}</td><td data-label="顧客"><b>${o.name}</b><br><small>${o.identity}</small></td>
+                <td data-label="明細" style="line-height:1.5;">${o.items}</td><td data-label="金額"><b>$${o.total}</b></td>
+                <td data-label="操作"><button class="red" onclick="deleteOrder(${i})">刪除</button></td></tr>`;
         });
-        document.getElementById('order-list').innerHTML = html || '<tr><td colspan="5">目前尚無訂單</td></tr>';
+        document.getElementById('order-list').innerHTML = html || '<tr><td colspan="5">目前無訂單</td></tr>';
     }
 
     function exportOrders() {
-        if(currentOrders.length===0) return;
+        if(orders.length===0) return;
         let csv = "\ufeff下單時間,顧客姓名,聯絡資訊,餐點明細,總金額\n";
-        currentOrders.forEach(o => {
-            let cleanId = o.identity.replace(/<br>/g, '  ').replace(/,/g, ' ');
-            let cleanItem = o.items.replace(/<br>/g, ' | ').replace(/<[^>]*>?/gm, '').replace(/,/g, ' ');
-            csv += `${o.time},${o.name},${cleanId},${cleanItem},${o.total}\n`;
-        });
+        orders.forEach(o => { csv += `${o.time},${o.name},${o.identity.replace(/<br>/g,' ').replace(/,/g,' ')},${o.items.replace(/<br>/g,' | ').replace(/<[^>]*>?/gm, '').replace(/,/g,' ')},${o.total}\n`; });
         const link = document.createElement("a"); link.href = URL.createObjectURL(new Blob([csv], {type:'text/csv;charset=utf-8;'}));
         link.download = `訂單_${new Date().toLocaleDateString()}.csv`; link.click();
     }
 
     async function deleteOrder(i) {
         if(!confirm("確定刪除？")) return;
-        currentOrders.splice(i, 1);
-        await fetch('/api/orders', { method: 'PUT', headers: { "Content-Type": "application/json" }, body: JSON.stringify(currentOrders) });
+        orders.splice(i, 1);
+        await fetch('/api/orders', { method: 'PUT', headers: { "Content-Type": "application/json" }, body: JSON.stringify(orders) });
         loadOrders();
     }
 
     async function loadMenu() {
         const resp = await fetch('/api/menu');
         let data = await resp.json();
-        if (!data || data.length === 0 || !data[0].optionGroups) { currentMenu = JSON.parse(JSON.stringify(defaultMenu)); } 
-        else { currentMenu = data; }
-        renderMenuEditor();
-    }
-
-    async function resetMenuToDefault() {
-        if(confirm("警告：這會載入程式碼內的預設菜單與你的專屬套餐，確定要執行嗎？")) {
-            currentMenu = JSON.parse(JSON.stringify(defaultMenu));
-            await saveMenuToCloud();
+        singles = data.filter(i => i.type === 'item');
+        combos = data.filter(i => i.type === 'combo');
+        
+        // 給新手預設範例
+        if(singles.length === 0) {
+            singles = [
+                {id: "m1", type: "item", name: "炒泡麵", price: 50, prePrice: 0, stock: 50, img: ""},
+                {id: "m2", type: "item", name: "紅茶", price: 20, prePrice: 0, stock: 50, img: ""},
+                {id: "m3", type: "item", name: "加一顆蛋", price: 15, prePrice: 0, stock: 30, img: ""}
+            ];
         }
+        renderAll();
     }
 
-    // 💡 新增單點的功能回來了！
-    function addSingleItem() {
-        currentMenu.push({
-            id: 'm' + Date.now(),
-            type: 'item',
-            name: "新商品名稱",
-            desc: "",
-            price: 0,
-            prePrice: 0,
-            stock: 50,
-            img: "",
-            optionGroups: [] // 單點預設沒有複雜選項
-        });
-        renderMenuEditor();
-    }
+    function addSingle() { singles.push({ id: 'm'+Date.now(), type: 'item', name: "新單品", price: 0, prePrice: 0, stock: 50, img: "" }); renderAll(); }
+    function removeSingle(i) { if(confirm("確定刪除此單點？")) { singles.splice(i, 1); renderAll(); } }
+    
+    function addCombo() { combos.push({ id: 'c'+Date.now(), type: 'combo', name: "新套餐", price: 0, prePrice: 0, mainItem: "", drinks: [], extras: [], img: "" }); renderAll(); }
+    function removeCombo(i) { if(confirm("確定刪除此套餐？")) { combos.splice(i, 1); renderAll(); } }
 
-    // 💡 刪除商品的功能也回來了！
-    function removeItem(index) {
-        if(confirm("確定要刪除這個商品嗎？")) {
-            currentMenu.splice(index, 1);
-            renderMenuEditor();
-        }
-    }
-
-    function renderMenuEditor() {
-        let html = '';
-        currentMenu.forEach((item, i) => {
-            let typeTag = item.type === 'combo' ? '<span style="color:#ff3b30; font-weight:bold;">套餐</span>' : '<span style="color:#0071e3; font-weight:bold;">單點</span>';
-            let stockInput = item.type === 'combo' ? '<span style="color:#86868b">無(依單品)</span>' : `<input type="number" value="${item.stock||0}" id="m-stock-${i}" style="border-color:var(--primary); font-weight:bold;">`;
-            
-            html += `<tr>
-                <td data-label="分類">${typeTag}</td>
-                <td data-label="名稱"><input type="text" value="${item.name}" id="m-name-${i}"></td>
-                <td data-label="原價"><input type="number" value="${item.price}" id="m-price-${i}"></td>
-                <td data-label="特價"><input type="number" value="${item.prePrice||''}" id="m-prePrice-${i}"></td>
-                <td data-label="庫存">${stockInput}</td>
-                <td data-label="圖片"><input type="text" value="${item.img}" id="m-img-${i}"></td>
-                <td data-label="操作"><button class="red" onclick="removeItem(${i})">刪除</button></td>
+    function renderAll() {
+        // 渲染單點表
+        let sHtml = '';
+        singles.forEach((item, i) => {
+            sHtml += `<tr>
+                <td data-label="名稱"><input type="text" value="${item.name}" onchange="singles[${i}].name=this.value; renderCombos();"></td>
+                <td data-label="原價"><input type="number" value="${item.price}" onchange="singles[${i}].price=parseInt(this.value)||0"></td>
+                <td data-label="特價"><input type="number" value="${item.prePrice}" onchange="singles[${i}].prePrice=parseInt(this.value)||0" placeholder="無則填0"></td>
+                <td data-label="庫存"><input type="number" value="${item.stock}" onchange="singles[${i}].stock=parseInt(this.value)||0"></td>
+                <td data-label="圖片"><input type="text" value="${item.img}" onchange="singles[${i}].img=this.value" placeholder="網址"></td>
+                <td data-label="操作"><button class="red" onclick="removeSingle(${i})">刪除</button></td>
             </tr>`;
         });
-        document.getElementById('menu-edit-list').innerHTML = html;
+        document.getElementById('single-list').innerHTML = sHtml;
+        renderCombos();
     }
 
-    async function saveMenuToCloud() {
-        currentMenu.forEach((item, i) => {
-            item.name = document.getElementById(`m-name-${i}`).value;
-            item.price = parseInt(document.getElementById(`m-price-${i}`).value) || 0;
-            item.prePrice = parseInt(document.getElementById(`m-prePrice-${i}`).value) || 0;
-            if(item.type === 'item') item.stock = parseInt(document.getElementById(`m-stock-${i}`).value) || 0;
-            item.img = document.getElementById(`m-img-${i}`).value;
+    function renderCombos() {
+        let cHtml = '';
+        combos.forEach((combo, i) => {
+            // 主餐下拉選單
+            let mainOptions = `<option value="">--請選擇主餐--</option>` + singles.map(s => `<option value="${s.id}" ${combo.mainItem===s.id?'selected':''}>${s.name}</option>`).join('');
+            
+            // 飲料與加購列表生成
+            let drinkHtml = ''; let extraHtml = '';
+            singles.forEach(s => {
+                // 找找看這個套餐有沒有勾選這個飲料或加購，並拿出設定的差價
+                let dMatch = combo.drinks.find(d => d.id === s.id);
+                let eMatch = combo.extras.find(e => e.id === s.id);
+                
+                drinkHtml += `<div class="option-item">
+                    <input type="checkbox" id="chk_d_${i}_${s.id}" ${dMatch?'checked':''} onchange="updateComboData(${i})">
+                    <label style="flex:1" for="chk_d_${i}_${s.id}">${s.name}</label>
+                    <span style="color:#86868b; font-size:0.9rem;">補差價 $</span>
+                    <input type="number" id="price_d_${i}_${s.id}" value="${dMatch?dMatch.priceAdd:0}" onchange="updateComboData(${i})">
+                </div>`;
+                
+                extraHtml += `<div class="option-item">
+                    <input type="checkbox" id="chk_e_${i}_${s.id}" ${eMatch?'checked':''} onchange="updateComboData(${i})">
+                    <label style="flex:1" for="chk_e_${i}_${s.id}">${s.name}</label>
+                    <span style="color:#86868b; font-size:0.9rem;">加購價 $</span>
+                    <input type="number" id="price_e_${i}_${s.id}" value="${eMatch?eMatch.priceAdd:0}" onchange="updateComboData(${i})">
+                </div>`;
+            });
+
+            cHtml += `<div class="combo-card">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <h3 style="margin:0 0 10px 0; color:var(--text-main);">套餐設定</h3>
+                    <button class="red" onclick="removeCombo(${i})" style="padding:5px 10px;">刪除套餐</button>
+                </div>
+                <div class="combo-row">
+                    <input type="text" placeholder="套餐名稱" value="${combo.name}" onchange="combos[${i}].name=this.value">
+                    <input type="number" placeholder="套餐原價" value="${combo.price}" onchange="combos[${i}].price=parseInt(this.value)||0">
+                    <input type="number" placeholder="套餐預購價" value="${combo.prePrice}" onchange="combos[${i}].prePrice=parseInt(this.value)||0">
+                    <input type="text" placeholder="圖片網址" value="${combo.img}" onchange="combos[${i}].img=this.value">
+                </div>
+                <div class="combo-row">
+                    <select onchange="combos[${i}].mainItem=this.value" style="background:#e5f1ff; border-color:var(--primary); font-weight:bold;">${mainOptions}</select>
+                </div>
+                
+                <div style="display:flex; gap:20px; flex-wrap:wrap;">
+                    <div style="flex:1; min-width:250px;">
+                        <div class="combo-section-title">🥤 飲料區 (客人必選1項)</div>
+                        <p style="font-size:0.8rem; color:#86868b; margin-top:0;">請勾選可當作飲料的單品，並設定客人選它要多加多少錢。</p>
+                        ${drinkHtml}
+                    </div>
+                    <div style="flex:1; min-width:250px;">
+                        <div class="combo-section-title">🍳 加購配餐區 (客人可不選或多選)</div>
+                        <p style="font-size:0.8rem; color:#86868b; margin-top:0;">請勾選可加點的單品(如加蛋)，並設定加購價。</p>
+                        ${extraHtml}
+                    </div>
+                </div>
+            </div>`;
         });
-        await fetch('/api/menu', { method: 'PUT', headers: { "Content-Type": "application/json" }, body: JSON.stringify(currentMenu) });
-        alert("✅ 菜單與庫存已發布更新！"); loadMenu();
+        document.getElementById('combo-list').innerHTML = cHtml || '<p style="text-align:center; color:#86868b;">目前無套餐，點擊上方按鈕新增！</p>';
+    }
+
+    // 當打勾或改價錢時，即時更新 combos 陣列
+    function updateComboData(cIndex) {
+        let drinkArr = []; let extraArr = [];
+        singles.forEach(s => {
+            let dChk = document.getElementById(`chk_d_${cIndex}_${s.id}`);
+            let dPrice = document.getElementById(`price_d_${cIndex}_${s.id}`);
+            if(dChk && dChk.checked) drinkArr.push({ id: s.id, priceAdd: parseInt(dPrice.value)||0 });
+            
+            let eChk = document.getElementById(`chk_e_${cIndex}_${s.id}`);
+            let ePrice = document.getElementById(`price_e_${cIndex}_${s.id}`);
+            if(eChk && eChk.checked) extraArr.push({ id: s.id, priceAdd: parseInt(ePrice.value)||0 });
+        });
+        combos[cIndex].drinks = drinkArr;
+        combos[cIndex].extras = extraArr;
+    }
+
+    async function saveAll() {
+        // 防呆檢查
+        for(let c of combos) {
+            if(!c.mainItem) return alert(`套餐「${c.name}」還沒選擇主餐喔！`);
+            if(c.drinks.length === 0) return alert(`套餐「${c.name}」至少要勾選一種飲料喔！`);
+        }
+        
+        const finalMenu = [...singles, ...combos];
+        await fetch('/api/menu', { method: 'PUT', headers: { "Content-Type": "application/json" }, body: JSON.stringify(finalMenu) });
+        alert("✅ 菜單與套餐設定已完美發布至前台！");
     }
 </script>
 </body>
