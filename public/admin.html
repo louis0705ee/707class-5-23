@@ -67,7 +67,7 @@
     <div class="container">
         <div class="container-header">
             <h2>📦 單點與庫存管理</h2>
-            <div><button onclick="resetMenuToDefault()" style="background:var(--danger);">⚠️ 重置預設客製化菜單</button> <button onclick="saveMenuToCloud()" style="background:var(--primary)">💾 保存庫存發布</button></div>
+            <div><button onclick="resetMenuToDefault()" style="background:var(--danger);">⚠️ 重置為預設菜單</button> <button onclick="saveMenuToCloud()" style="background:var(--primary)">💾 保存庫存發布</button></div>
         </div>
         <p style="color:#86868b; font-size:0.9rem;">為了支援加蛋、換飲料等複雜功能，項目已由系統內建保護。您可在此直接管理庫存與修改對外名稱圖片。</p>
         <table>
@@ -81,36 +81,63 @@
     let currentMenu = [];
     let currentOrders = [];
 
-    // 🌟 在這裡設定你的客製化菜單大全
+    // =================================================================
+    // 🌟 在這裡設定你們班「真正要賣的」菜單！
+    // =================================================================
     const defaultMenu = [
-        // --- 單點區 ---
+        // 🍔 你的第一個商品：測試1
         {
-            id: "m1", type: "item", name: "招牌炒泡麵", desc: "純手工現炒", price: 60, prePrice: 50, stock: 50, img: "",
-            optionGroups: [
-                { name: "辣度選擇", required: true, multiple: false, options: [{name:"不辣"}, {name:"小辣"}, {name:"大辣"}] },
-                { name: "加購好料", required: false, multiple: true, options: [{name:"加一顆蛋", priceAdd: 10}, {name:"加起司", priceAdd: 15}] }
-            ]
-        },
-        { id: "m2", type: "item", name: "彈珠汽水", desc: "消暑聖品", price: 20, prePrice: 0, stock: 50, img: "", optionGroups: [] },
-        { id: "m3", type: "item", name: "特調奶茶", desc: "濃郁奶香", price: 35, prePrice: 30, stock: 40, img: "", 
-            optionGroups: [{ name: "甜度", required: true, multiple: false, options: [{name:"正常甜"}, {name:"半糖"}] }]
+            id: "m1", 
+            type: "item", 
+            name: "測試1", 
+            desc: "這是測試1的說明", 
+            price: 800,       // 原價 
+            prePrice: 0,      // 沒有預購價就填 0
+            stock: 100,       // 總庫存
+            img: "", 
+            optionGroups: []  // 不需要選項就留空 []
         },
 
-        // --- 套餐區 ---
+        // 🍔 你的第二個商品：測試2
         {
-            id: "c1", type: "combo", name: "吃飽飽超值套餐", desc: "炒泡麵 + 彈珠汽水 (可補差價升級奶茶)", 
-            price: 70, prePrice: 65, img: "",
-            comboItems: ["m1", "m2"], // 設定套餐包含的單點ID，會自動扣除對應庫存
-            optionGroups: [
-                { name: "炒泡麵辣度", required: true, multiple: false, options: [{name:"不辣"}, {name:"小辣"}, {name:"大辣"}] },
-                { name: "炒泡麵加購", required: false, multiple: true, options: [{name:"加蛋", priceAdd: 10}] },
-                { name: "飲料選擇", required: true, multiple: false, options: [
-                    {name: "維持彈珠汽水", priceAdd: 0},
-                    {name: "升級特調奶茶", priceAdd: 15} // 這裡設定換飲料要補多少錢
-                ]}
-            ]
+            id: "m2", 
+            type: "item", 
+            name: "測試2", 
+            desc: "這是測試2的說明", 
+            price: 862, 
+            prePrice: 0, 
+            stock: 100, 
+            img: "", 
+            optionGroups: []
+        },
+
+        // 🍔 你的第三個商品：猴子
+        {
+            id: "m3", 
+            type: "item", 
+            name: "猴子", 
+            desc: "猴子的說明", 
+            price: 700, 
+            prePrice: 0, 
+            stock: 100, 
+            img: "", 
+            optionGroups: []
+        },
+
+        // 👑 如果你需要套餐，可以參考這個格式設定
+        {
+            id: "c1", 
+            type: "combo", 
+            name: "動物測試套餐", 
+            desc: "測試1 + 猴子", 
+            price: 1500, 
+            prePrice: 1400, 
+            img: "",
+            comboItems: ["m1", "m3"], // 💡 買套餐會扣除 m1(測試1) 和 m3(猴子) 的庫存
+            optionGroups: []
         }
     ];
+    // =================================================================
 
     async function checkLogin() {
         const user = document.getElementById('adminUser').value;
