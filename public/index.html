@@ -19,7 +19,7 @@
         .form-group { margin-bottom: 20px; }
         label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.95rem; }
         input[type="text"], input[type="tel"], input[type="number"] { width: 100%; padding: 15px; border: 1px solid transparent; background: #f5f5f7; border-radius: 12px; box-sizing: border-box; font-size: 16px; transition: 0.3s; outline: none; }
-        input[type="text"]:focus, input[type="tel"]:focus, input[type="number"]:focus { border-color: #0071e3; background: #fff; box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.1); }
+        input:focus { border-color: #0071e3; background: #fff; box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.1); }
         
         .radio-group { display: flex; gap: 15px; margin-bottom: 15px; }
         .radio-label { flex: 1; text-align: center; padding: 12px; background: #f5f5f7; border-radius: 12px; cursor: pointer; font-weight: 600; transition: 0.3s; border: 2px solid transparent; }
@@ -62,46 +62,29 @@
         .option-label { display: flex; align-items: center; flex: 1; }
         .option-price { color: var(--accent); font-size: 0.95rem; font-weight: 600; margin-left: 10px; }
         
-        /* 🌟 高級客製化圓圈與方塊 */
         input.option-input {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 24px;
-            height: 24px;
-            border: 2px solid #d2d2d7;
-            margin-right: 12px;
-            outline: none;
-            cursor: pointer;
-            position: relative;
-            flex-shrink: 0;
-            transition: 0.2s;
-            background: #fff;
+            -webkit-appearance: none; appearance: none; width: 24px; height: 24px;
+            border: 2px solid #d2d2d7; margin-right: 12px; outline: none; cursor: pointer;
+            position: relative; flex-shrink: 0; transition: 0.2s; background: #fff;
         }
         input[type="radio"].option-input { border-radius: 50%; }
         input[type="checkbox"].option-input { border-radius: 6px; }
-
-        input.option-input:checked {
-            border-color: var(--text-main);
-            background-color: var(--text-main);
-        }
+        input.option-input:checked { border-color: var(--text-main); background-color: var(--text-main); }
         input[type="radio"].option-input:checked::after {
-            content: ''; position: absolute;
-            top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 8px; height: 8px;
-            background: white; border-radius: 50%;
+            content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 8px; height: 8px; background: white; border-radius: 50%;
         }
         input[type="checkbox"].option-input:checked::after {
-            content: ''; position: absolute;
-            top: 40%; left: 50%; transform: translate(-50%, -50%) rotate(45deg);
-            width: 5px; height: 10px;
-            border: solid white; border-width: 0 2px 2px 0;
+            content: ''; position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%) rotate(45deg);
+            width: 5px; height: 10px; border: solid white; border-width: 0 2px 2px 0;
         }
 
         .ig-notice { background: rgba(0, 113, 227, 0.05); padding: 15px; border-radius: 12px; margin-top: 12px; font-size: 0.9rem; line-height: 1.6; color: #1d1d1f; text-align: center; border: 1px solid rgba(0, 113, 227, 0.1);}
         .ig-notice a { color: #0071e3; font-weight: 700; text-decoration: none; display: inline-block; margin-top: 5px; background: #fff; padding: 5px 12px; border-radius: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);}
         
         .qty-controls { display: flex; align-items: center; background: #f5f5f7; border-radius: 20px; padding: 5px 15px; }
-        .qty-btn { width: 34px; height: 34px; background: none; border: none; font-size: 1.4rem; cursor: pointer; font-weight: bold;}
+        .qty-btn { width: 34px; height: 34px; background: none; border: none; font-size: 1.4rem; cursor: pointer; font-weight: bold; transition: opacity 0.2s; }
+        .qty-btn:disabled { cursor: not-allowed; }
         .qty-display { margin: 0 15px; font-weight: 700; width: 20px; text-align: center; }
     </style>
 </head>
@@ -140,10 +123,14 @@
             <form id="options-form"></form>
             
             <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 25px;">
-                <div class="qty-controls">
-                    <button type="button" class="qty-btn" onclick="changeModalQty(-1)">-</button>
-                    <span class="qty-display" id="modal-qty">1</span>
-                    <button type="button" class="qty-btn" onclick="changeModalQty(1)">+</button>
+                <!-- 🌟 加入庫存視覺化提示 -->
+                <div style="display:flex; flex-direction:column; align-items:center;">
+                    <div class="qty-controls">
+                        <button type="button" class="qty-btn" id="modal-btn-minus" onclick="changeModalQty(-1)">-</button>
+                        <span class="qty-display" id="modal-qty">1</span>
+                        <button type="button" class="qty-btn" id="modal-btn-plus" onclick="changeModalQty(1)">+</button>
+                    </div>
+                    <div id="modal-stock-hint" style="font-size:0.75rem; color:#86868b; margin-top:5px;"></div>
                 </div>
                 <button class="btn" style="margin: 0; width: auto; flex: 1; margin-left: 15px;" onclick="addToCart()">加入購物車 - <span id="modal-total-btn">$0</span></button>
             </div>
@@ -209,15 +196,23 @@
         toggleUserForm();
         try {
             const resp = await fetch('/api/menu');
-            menuData = await resp.json();
+            let rawData = await resp.json();
+            
+            // 🚨 最重要的資料防護牆：把所有庫存強制清洗為安全數字
+            menuData = rawData.map(item => {
+                let s = parseInt(item.stock, 10);
+                item.stock = isNaN(s) ? 0 : s; // 遇到壞掉的 NaN 資料，直接視為庫存 0
+                return item;
+            });
+            
             renderMenu(); 
         } catch (err) { document.getElementById('single-list').innerHTML = '<p style="color:red; text-align:center;">連線異常，請重新整理</p>'; }
     };
 
-    function checkStock(itemId, qtyNeeded) {
+    function getAvailableStock(itemId) {
         let item = menuData.find(i => i.id === itemId);
-        if(!item) return false;
-
+        if(!item) return 0;
+        
         let used = 0;
         cart.forEach(cItem => {
             if(cItem.id === itemId) used += cItem.qty;
@@ -226,7 +221,68 @@
                 if(opt.id === itemId) used += cItem.qty;
             });
         });
-        return (used + qtyNeeded) <= item.stock;
+        return Math.max(0, item.stock - used);
+    }
+
+    function getMaxAvailableForCurrentSelection() {
+        let targetId = currentModalItem.type === 'combo' ? currentModalItem.mainItem : currentModalItem.id;
+        let maxQty = getAvailableStock(targetId);
+
+        if (currentModalItem.type === 'combo') {
+            let dRadio = document.querySelector('input[name="drink"]:checked');
+            if (dRadio) maxQty = Math.min(maxQty, getAvailableStock(JSON.parse(dRadio.value).id));
+
+            let sRadio = document.querySelector('input[name="side"]:checked');
+            if (sRadio) maxQty = Math.min(maxQty, getAvailableStock(JSON.parse(sRadio.value).id));
+
+            document.querySelectorAll('.option-extra:checked').forEach(chk => {
+                maxQty = Math.min(maxQty, getAvailableStock(JSON.parse(chk.value).id));
+            });
+        }
+        return maxQty;
+    }
+
+    function updateModalQtyButtons() {
+        let maxAvail = getMaxAvailableForCurrentSelection();
+        const btnMinus = document.getElementById('modal-btn-minus');
+        const btnPlus = document.getElementById('modal-btn-plus');
+
+        if (currentModalQty <= 1) { btnMinus.style.opacity = '0.3'; btnMinus.disabled = true; } 
+        else { btnMinus.style.opacity = '1'; btnMinus.disabled = false; }
+
+        if (currentModalQty >= maxAvail) { btnPlus.style.opacity = '0.3'; btnPlus.disabled = true; } 
+        else { btnPlus.style.opacity = '1'; btnPlus.disabled = false; }
+
+        // 視覺化提示客人目前的購買上限
+        let stockHint = document.getElementById('modal-stock-hint');
+        if(stockHint) {
+            stockHint.innerText = `(此組合最多買 ${maxAvail} 份)`;
+        }
+    }
+
+    function checkOptionStock(input) {
+        if (!input.checked) {
+            calculateModalTotal();
+            return;
+        }
+        
+        let data = JSON.parse(input.value);
+        let avail = getAvailableStock(data.id);
+        
+        if (avail < 1) {
+            alert(`⚠️ 系統取消打勾：因為【${data.name}】剛剛賣完囉，請選擇其他配料！`);
+            input.checked = false;
+            calculateModalTotal();
+            return;
+        }
+
+        if (currentModalQty > avail) {
+            alert(`⚠️ 數量調整提醒：因為【${data.name}】只剩下 ${avail} 份，所以您的購買數量已自動調降為 ${avail} 份喔！`);
+            currentModalQty = avail;
+            document.getElementById('modal-qty').innerText = currentModalQty;
+        }
+
+        calculateModalTotal();
     }
 
     function renderMenu() {
@@ -237,23 +293,18 @@
 
         menuData.forEach((item) => {
             let activePrice = (item.prePrice && item.prePrice > 0) ? item.prePrice : item.price;
-            
-            // 🌟 這裡判斷標籤名稱：單點顯示「預購價」，套餐顯示「特價」
             let priceLabel = item.type === 'combo' ? '特價' : '預購價';
             let priceHtml = item.prePrice > 0 ? `<span class="old-price">$${item.price}</span><span class="accent-price"><span style="font-size:0.85rem; margin-right:4px;">${priceLabel}</span>$${item.prePrice}</span>` : `<span class="new-price">$${item.price}</span>`;
             
             let imgSrc = item.img ? item.img : 'https://via.placeholder.com/80/f5f5f7/86868b?text=Image';
+            let isSoldOut = false; let descHtml = '';
             
-            let isSoldOut = false;
-            let descHtml = '';
             if(item.type === 'combo') {
-                isSoldOut = !checkStock(item.mainItem, 1);
+                isSoldOut = getAvailableStock(item.mainItem) < 1;
                 let mainData = menuData.find(m => m.id === item.mainItem);
                 descHtml = `<div class="combo-desc">含：${mainData?mainData.name:'主餐'} + 自選配餐</div>`;
                 hasCombo = true;
-            } else {
-                isSoldOut = !checkStock(item.id, 1);
-            }
+            } else { isSoldOut = getAvailableStock(item.id) < 1; }
             
             let itemHtml = `
                 <div class="menu-item fade-in" style="${isSoldOut ? 'opacity: 0.5; filter: grayscale(1);' : ''}" onclick="${isSoldOut ? '' : `openModal('${item.id}')`}">
@@ -280,8 +331,6 @@
 
         currentModalQty = 1;
         basePrice = (currentModalItem.prePrice && currentModalItem.prePrice > 0) ? currentModalItem.prePrice : currentModalItem.price;
-
-        // 🌟 彈跳視窗內的價格標籤也同步：單點顯示「預購價」，套餐顯示「特價」
         let labelText = currentModalItem.type === 'combo' ? '特價' : '預購價';
 
         document.getElementById('modal-title').innerText = currentModalItem.name;
@@ -295,19 +344,18 @@
             let mainData = menuData.find(m => m.id === currentModalItem.mainItem);
             document.getElementById('modal-desc').innerText = `✅ 主餐：${mainData?mainData.name:'已綁定'}`;
 
-            // 1. 飲料區 (必選)
             if(currentModalItem.drinks && currentModalItem.drinks.length > 0) {
                 let dHtml = `<div class="option-group"><div class="option-group-title">選擇飲料 <span class="option-required">必選1項</span></div>`;
                 currentModalItem.drinks.forEach(d => {
                     let dData = menuData.find(m => m.id === d.id);
                     if(!dData) return;
-                    let outOfStock = !checkStock(d.id, 1);
+                    let outOfStock = getAvailableStock(d.id) < 1;
                     let priceStr = d.priceAdd > 0 ? `<span class="option-price">+$${d.priceAdd}</span>` : '';
                     
-                    dHtml += `<label class="option-row" style="${outOfStock?'opacity:0.4':''}">
+                    dHtml += `<label class="option-row" style="${outOfStock?'opacity:0.5':''}">
                         <div class="option-label">
-                            <input type="radio" class="option-input" name="drink" value='{"id":"${d.id}","name":"${dData.name}","priceAdd":${d.priceAdd}}' onchange="calculateModalTotal()" ${outOfStock?'disabled':''}>
-                            <span>${dData.name} ${outOfStock?'(售完)':''}</span>
+                            <input type="radio" class="option-input" name="drink" value='{"id":"${d.id}","name":"${dData.name}","priceAdd":${d.priceAdd}}' onchange="checkOptionStock(this)">
+                            <span>${dData.name} ${outOfStock?'<span style="color:var(--danger); font-size:0.85rem; margin-left:5px;">(售完)</span>':''}</span>
                         </div>
                         ${priceStr}
                     </label>`;
@@ -316,19 +364,18 @@
                 form.innerHTML += dHtml;
             }
 
-            // 2. 必選配餐區 (如蛋)
             if(currentModalItem.sides && currentModalItem.sides.length > 0) {
                 let sHtml = `<div class="option-group"><div class="option-group-title">選擇配餐 <span class="option-required">必選1項</span></div>`;
                 currentModalItem.sides.forEach(s => {
                     let sData = menuData.find(m => m.id === s.id);
                     if(!sData) return;
-                    let outOfStock = !checkStock(s.id, 1);
+                    let outOfStock = getAvailableStock(s.id) < 1;
                     let priceStr = s.priceAdd > 0 ? `<span class="option-price">+$${s.priceAdd}</span>` : '';
                     
-                    sHtml += `<label class="option-row" style="${outOfStock?'opacity:0.4':''}">
+                    sHtml += `<label class="option-row" style="${outOfStock?'opacity:0.5':''}">
                         <div class="option-label">
-                            <input type="radio" class="option-input" name="side" value='{"id":"${s.id}","name":"${sData.name}","priceAdd":${s.priceAdd}}' onchange="calculateModalTotal()" ${outOfStock?'disabled':''}>
-                            <span>${sData.name} ${outOfStock?'(售完)':''}</span>
+                            <input type="radio" class="option-input" name="side" value='{"id":"${s.id}","name":"${sData.name}","priceAdd":${s.priceAdd}}' onchange="checkOptionStock(this)">
+                            <span>${sData.name} ${outOfStock?'<span style="color:var(--danger); font-size:0.85rem; margin-left:5px;">(售完)</span>':''}</span>
                         </div>
                         ${priceStr}
                     </label>`;
@@ -337,19 +384,18 @@
                 form.innerHTML += sHtml;
             }
 
-            // 3. 加購區 (多選)
             if(currentModalItem.extras && currentModalItem.extras.length > 0) {
                 let eHtml = `<div class="option-group"><div class="option-group-title">加購好料 <span style="font-size:0.8rem; color:#86868b; font-weight:normal;">(可複選)</span></div>`;
                 currentModalItem.extras.forEach(e => {
                     let eData = menuData.find(m => m.id === e.id);
                     if(!eData) return;
-                    let outOfStock = !checkStock(e.id, 1);
+                    let outOfStock = getAvailableStock(e.id) < 1;
                     let priceStr = e.priceAdd > 0 ? `<span class="option-price">+$${e.priceAdd}</span>` : '';
                     
-                    eHtml += `<label class="option-row" style="${outOfStock?'opacity:0.4':''}">
+                    eHtml += `<label class="option-row" style="${outOfStock?'opacity:0.5':''}">
                         <div class="option-label">
-                            <input type="checkbox" class="option-input option-extra" value='{"id":"${e.id}","name":"${eData.name}","priceAdd":${e.priceAdd}}' onchange="calculateModalTotal()" ${outOfStock?'disabled':''}>
-                            <span>${eData.name} ${outOfStock?'(售完)':''}</span>
+                            <input type="checkbox" class="option-input option-extra" value='{"id":"${e.id}","name":"${eData.name}","priceAdd":${e.priceAdd}}' onchange="checkOptionStock(this)">
+                            <span>${eData.name} ${outOfStock?'<span style="color:var(--danger); font-size:0.85rem; margin-left:5px;">(售完)</span>':''}</span>
                         </div>
                         ${priceStr}
                     </label>`;
@@ -371,9 +417,11 @@
         let newQty = currentModalQty + change;
         if (newQty < 1) newQty = 1;
         
-        let targetId = currentModalItem.type === 'combo' ? currentModalItem.mainItem : currentModalItem.id;
-        if (!checkStock(targetId, newQty - currentModalQty)) { 
-            alert(`商品庫存不足喔！`); return; 
+        let maxAvail = getMaxAvailableForCurrentSelection();
+        
+        if (change > 0 && currentModalQty >= maxAvail) {
+            alert(`⚠️ 已經達到庫存上限囉！因為您選擇的主餐或配料最多只能供應 ${maxAvail} 份。`);
+            return;
         }
         
         currentModalQty = newQty;
@@ -394,6 +442,16 @@
                 optionsTotal += JSON.parse(chk.value).priceAdd;
             });
         }
+
+        let maxAvail = getMaxAvailableForCurrentSelection();
+        if (currentModalQty > maxAvail) {
+            currentModalQty = maxAvail;
+            if (currentModalQty < 1 && maxAvail > 0) currentModalQty = 1;
+            document.getElementById('modal-qty').innerText = currentModalQty;
+        }
+
+        updateModalQtyButtons();
+
         let total = (basePrice + optionsTotal) * currentModalQty;
         document.getElementById('modal-total-btn').innerText = `$${total}`;
         return total;
