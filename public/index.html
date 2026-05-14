@@ -30,7 +30,8 @@
         .btn:hover { transform: scale(0.98); background: #333; }
         .btn-secondary { background: #e8e8ed; color: var(--text-main); }
 
-        .menu-item { display: flex; align-items: center; padding: 16px; margin-bottom: 16px; background: #fff; border-radius: 18px; border: 1px solid #f1f2f6; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
+        .menu-item { display: flex; align-items: center; padding: 16px; margin-bottom: 16px; background: #fff; border-radius: 18px; border: 1px solid #f1f2f6; box-shadow: 0 4px 15px rgba(0,0,0,0.02); cursor: pointer; transition: 0.2s; }
+        .menu-item:active { transform: scale(0.98); }
         .menu-item img { width: 80px; height: 80px; object-fit: cover; border-radius: 14px; margin-right: 15px; }
         .item-info { flex-grow: 1; }
         .item-title { font-weight: 700; font-size: 1.1rem; margin: 0 0 4px 0; }
@@ -38,33 +39,81 @@
         
         .price-area { margin-top: 5px; }
         .old-price { text-decoration: line-through; color: var(--text-muted); font-size: 0.9rem; margin-right: 8px; }
-        .new-price { color: var(--accent); font-weight: 700; font-size: 1.2rem; }
-
-        .qty-controls { display: flex; align-items: center; background: #f5f5f7; border-radius: 20px; padding: 4px; }
-        .qty-btn { width: 32px; height: 32px; background: white; border: none; border-radius: 50%; cursor: pointer; font-size: 1.2rem; font-weight:bold; color: var(--text-main); box-shadow: 0 2px 6px rgba(0,0,0,0.06); }
-        .qty-display { margin: 0 12px; font-weight: 700; width: 20px; text-align: center; }
+        .new-price { color: var(--text-main); font-weight: 700; font-size: 1.2rem; }
+        .accent-price { color: var(--accent); font-weight: 700; font-size: 1.2rem; }
 
         .cart-bar { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 440px; z-index: 100; padding: 15px; border-radius: 20px; background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); box-shadow: 0 10px 30px rgba(0,0,0,0.15); border: 1px solid rgba(255,255,255,0.5); }
-        .cart-bar .btn { margin: 0; box-shadow: none; }
+        .cart-bar .btn { margin: 0; box-shadow: none; display: flex; justify-content: space-between; align-items: center; }
 
         .summary-box { background: #f5f5f7; padding: 25px; border-radius: 18px; margin-bottom: 25px; }
-        .summary-item { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 1.05rem; color: #333; }
+        .summary-item { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 1.05rem; color: #333; flex-wrap: wrap;}
+        .summary-options { width: 100%; font-size: 0.85rem; color: #86868b; margin-top: 4px; padding-left: 10px; border-left: 2px solid #d2d2d7;}
+
+        /* 選項彈窗 */
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 200; display: flex; justify-content: center; align-items: flex-end; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
+        .modal-content { background: #fff; width: 100%; max-width: 480px; border-radius: 24px 24px 0 0; padding: 25px; box-sizing: border-box; transform: translateY(100%); transition: transform 0.3s; max-height: 85vh; overflow-y: auto; }
+        .modal-overlay.active .modal-content { transform: translateY(0); }
+        
+        .option-group { margin-bottom: 20px; }
+        .option-group-title { font-weight: 700; font-size: 1.1rem; margin-bottom: 10px; display: flex; justify-content: space-between; }
+        .option-required { font-size: 0.8rem; background: #e5e5ea; padding: 2px 6px; border-radius: 4px; color: #1d1d1f; }
+        .option-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #f1f2f6; }
+        .option-label { display: flex; align-items: center; cursor: pointer; flex: 1; }
+        .option-price { color: var(--accent); font-size: 0.9rem; font-weight: 600; margin-left: 10px; }
+        input.option-input { margin-right: 10px; transform: scale(1.2); }
+        
+        .ig-notice { background: rgba(0, 113, 227, 0.05); padding: 15px; border-radius: 12px; margin-top: 12px; font-size: 0.9rem; line-height: 1.6; color: #1d1d1f; text-align: center; }
+        .ig-notice a { color: #0071e3; font-weight: 700; text-decoration: none; display: inline-block; margin-top: 5px; }
+        
+        .qty-controls { display: flex; align-items: center; background: #f5f5f7; border-radius: 20px; padding: 5px 15px; }
+        .qty-btn { width: 34px; height: 34px; background: none; border: none; font-size: 1.4rem; cursor: pointer; font-weight: bold;}
+        .qty-display { margin: 0 15px; font-weight: 700; width: 20px; text-align: center; }
     </style>
 </head>
 <body>
 
 <div class="app-container">
     <div id="page-menu" class="fade-in">
-        <h2>花果山預購菜單</h2>
-        <p style="text-align:center; color:#86868b; font-size: 0.85rem; margin-top: -10px; margin-bottom: 20px;">* 圖片僅供參考，請以實物為準</p>
+        <h2 style="margin-bottom: 10px;">花菓山預購菜單</h2>
+        <p style="text-align:center; color:#86868b; font-size: 0.85rem; margin-top: 0; margin-bottom: 25px;">* 圖片僅供參考，請以實物為準</p>
         
-        <!-- 單點區 -->
-        <div id="menu-list"><p style="text-align:center; color:#86868b;">美味載入中...</p></div>
+        <div class="section-title">✨ 單點美味</div>
+        <div id="single-list"><p style="text-align:center; color:#86868b;">載入中...</p></div>
         
-        <!-- 套餐區 -->
-        <div id="combo-list"></div>
+        <div id="combo-section" style="display:none;">
+            <div class="section-title">👑 超值套餐區</div>
+            <div id="combo-list"></div>
+        </div>
 
-        <div class="cart-bar"><button class="btn" onclick="goToCart()">前往購物車 (<span id="cart-count">0</span>)</button></div>
+        <div class="cart-bar">
+            <button class="btn" onclick="goToCart()">
+                <span>🛒 查看購物車 (<span id="cart-count">0</span>)</span>
+                <span id="cart-total-bar">$0</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- 選項彈窗 -->
+    <div class="modal-overlay" id="itemModal" onclick="closeModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div style="margin-bottom: 20px;">
+                <h2 id="modal-title" style="margin: 0; text-align: left;">商品名稱</h2>
+                <p id="modal-desc" style="color: #86868b; font-size: 0.9rem; margin-top: 5px;"></p>
+                <div class="price-area" id="modal-price" style="font-size: 1.2rem;"></div>
+            </div>
+            
+            <form id="options-form"></form>
+            
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 20px;">
+                <div class="qty-controls">
+                    <button type="button" class="qty-btn" onclick="changeModalQty(-1)">-</button>
+                    <span class="qty-display" id="modal-qty">1</span>
+                    <button type="button" class="qty-btn" onclick="changeModalQty(1)">+</button>
+                </div>
+                <button class="btn" style="margin: 0; width: auto; flex: 1; margin-left: 15px;" onclick="addToCart()">加入購物車 - <span id="modal-total-btn">$0</span></button>
+            </div>
+        </div>
     </div>
 
     <!-- 購物車 -->
@@ -96,6 +145,10 @@
         <div class="form-group">
             <label id="igLabel">Instagram 帳號 (與電話擇一填寫)</label>
             <input type="text" id="igInfo" placeholder="您的 IG ID">
+            <div class="ig-notice">
+                為了確保能能傳送確認信息給您，建議追蹤我們的官方帳號！<br>
+                <a href="https://www.instagram.com/twlmsh707" target="_blank">👉 點我追蹤 @twlmsh707</a>
+            </div>
         </div>
         <button class="btn" onclick="goToReview()">核對訂單</button>
         <button class="btn btn-secondary" onclick="backToCart()">返回修改</button>
@@ -113,33 +166,31 @@
 <script>
     let menuData = [];
     let userInfo = {};
-    let cart = {};
+    let cart = []; 
+    let currentModalItem = null;
+    let currentModalQty = 1;
+    let basePrice = 0;
 
     window.onload = async function() {
         toggleUserForm();
         try {
             const resp = await fetch('/api/menu');
             menuData = await resp.json();
-            
-            // 初始化購物車結構
-            menuData.forEach(item => {
-                let activePrice = (item.prePrice && item.prePrice > 0) ? item.prePrice : item.price;
-                cart[item.id] = { name: item.name, price: activePrice, qty: 0 };
-            });
             renderMenu(); 
-        } catch (err) { alert("連線異常"); }
+        } catch (err) { document.getElementById('single-list').innerHTML = '<p style="color:red; text-align:center;">連線異常，請重新整理</p>'; }
     };
 
-    // 🌟 核心防護：計算庫存是否足夠
     function canAddStock(id, qtyToAdd) {
         let item = menuData.find(i => i.id === id);
         if (!item) return false;
 
         const getUsedQty = (singleItemId) => {
-            let used = cart[singleItemId] ? cart[singleItemId].qty : 0;
-            menuData.filter(i => i.type === 'combo').forEach(combo => {
-                if (combo.comboItems && combo.comboItems.includes(singleItemId)) {
-                    used += cart[combo.id] ? cart[combo.id].qty : 0;
+            let used = 0;
+            cart.forEach(cItem => {
+                if(cItem.id === singleItemId) used += cItem.qty;
+                let cMenuItem = menuData.find(m => m.id === cItem.id);
+                if(cMenuItem && cMenuItem.type === 'combo' && cMenuItem.comboItems && cMenuItem.comboItems.includes(singleItemId)){
+                    used += cItem.qty;
                 }
             });
             return used;
@@ -159,97 +210,152 @@
     }
 
     function renderMenu() {
-        const menuList = document.getElementById('menu-list');
+        const singleList = document.getElementById('single-list');
         const comboList = document.getElementById('combo-list');
-        menuList.innerHTML = ''; comboList.innerHTML = '';
+        singleList.innerHTML = ''; comboList.innerHTML = '';
+        let hasCombo = false;
 
-        let singleItems = menuData.filter(i => i.type === 'item');
-        let combos = menuData.filter(i => i.type === 'combo');
-
-        // 渲染單點商品
-        singleItems.forEach((item) => {
-            let priceHtml = item.prePrice > 0 ? `<span class="old-price">$${item.price}</span><span class="new-price"><span style="font-size:0.85rem; margin-right:4px;">預購價</span>$${item.prePrice}</span>` : `<span class="new-price">$${item.price}</span>`;
+        menuData.forEach((item, index) => {
+            let activePrice = (item.prePrice && item.prePrice > 0) ? item.prePrice : item.price;
+            let priceHtml = item.prePrice > 0 ? `<span class="old-price">$${item.price}</span><span class="accent-price"><span style="font-size:0.85rem; margin-right:4px;">預購價</span>$${item.prePrice}</span>` : `<span class="new-price">$${item.price}</span>`;
             let imgSrc = item.img ? item.img : 'https://via.placeholder.com/80/f5f5f7/86868b?text=Image';
-            let canAdd = canAddStock(item.id, 1);
-
-            menuList.innerHTML += `
-                <div class="menu-item fade-in">
-                    <img src="${imgSrc}">
+            
+            let isSoldOut = !canAddStock(item.id, 1);
+            
+            let itemHtml = `
+                <div class="menu-item fade-in" style="${isSoldOut ? 'opacity: 0.5; filter: grayscale(1);' : ''}" onclick="${isSoldOut ? '' : `openModal('${item.id}')`}">
+                    <img src="${imgSrc}" onerror="this.src='https://via.placeholder.com/80/f5f5f7/86868b?text=Error'">
                     <div class="item-info">
                         <p class="item-title">${item.name}</p>
+                        ${item.desc ? `<div class="combo-desc">${item.desc}</div>` : ''}
                         <div class="price-area">${priceHtml}</div>
                     </div>
-                    <div class="qty-controls">
-                        ${(canAdd || cart[item.id].qty > 0) ? `
-                            <button class="qty-btn" onclick="updateQty('${item.id}', -1)">-</button>
-                            <span class="qty-display" id="qty-${item.id}">${cart[item.id].qty}</span>
-                            <button class="qty-btn" onclick="updateQty('${item.id}', 1)" ${!canAdd ? 'disabled style="opacity:0.3"' : ''}>+</button>
-                        ` : `<span style="color:var(--danger); font-weight:700; font-size:0.9rem; padding:0 10px;">已售完</span>`}
-                    </div>
+                    ${isSoldOut ? '<div style="color:var(--danger); font-weight:bold; font-size:0.9rem;">售完</div>' : '<div style="color:var(--primary); font-weight:bold; font-size:1.5rem;">＋</div>'}
                 </div>
             `;
-        });
 
-        // 渲染套餐區塊
-        if (combos.length > 0) {
-            comboList.innerHTML = '<div class="section-title">✨ 超值套餐組合</div>';
-            combos.forEach((item) => {
-                let priceHtml = item.prePrice > 0 ? `<span class="old-price">$${item.price}</span><span class="new-price"><span style="font-size:0.85rem; margin-right:4px;">優惠價</span>$${item.prePrice}</span>` : `<span class="new-price">$${item.price}</span>`;
-                let canAdd = canAddStock(item.id, 1);
-                
-                // 翻譯套餐內容的 ID 變成文字
-                let comboNames = item.comboItems.map(cId => {
-                    let sItem = menuData.find(i => i.id === cId);
-                    return sItem ? sItem.name : '未知商品';
-                }).join(' + ');
-
-                comboList.innerHTML += `
-                    <div class="menu-item fade-in" style="align-items:flex-start;">
-                        <div class="item-info">
-                            <p class="item-title">${item.name}</p>
-                            <div class="combo-desc">包含：${comboNames}</div>
-                            <div class="price-area">${priceHtml}</div>
-                        </div>
-                        <div class="qty-controls" style="margin-top:10px;">
-                            ${(canAdd || cart[item.id].qty > 0) ? `
-                                <button class="qty-btn" onclick="updateQty('${item.id}', -1)">-</button>
-                                <span class="qty-display" id="qty-${item.id}">${cart[item.id].qty}</span>
-                                <button class="qty-btn" onclick="updateQty('${item.id}', 1)" ${!canAdd ? 'disabled style="opacity:0.3"' : ''}>+</button>
-                            ` : `<span style="color:var(--danger); font-weight:700; font-size:0.9rem; padding:0 10px;">已售完</span>`}
-                        </div>
-                    </div>
-                `;
-            });
-        }
-    }
-
-    function updateQty(id, change) {
-        if (change > 0 && !canAddStock(id, 1)) {
-            alert("商品庫存不足，無法再加購囉！");
-            return;
-        }
-        let newQty = cart[id].qty + change;
-        if (newQty < 0) newQty = 0;
-        cart[id].qty = newQty;
-        document.getElementById(`qty-${id}`).innerText = newQty;
-        document.getElementById('cart-count').innerText = Object.values(cart).reduce((sum, item) => sum + item.qty, 0);
-        
-        // 重新渲染以更新其他關聯按鈕的狀態 (例如單點買完，套餐也要立刻變灰)
-        renderMenu();
-    }
-
-    // 後續換頁與結帳邏輯保留
-    function goToCart() {
-        if (Object.values(cart).reduce((sum, item) => sum + item.qty, 0) === 0) return alert("購物車還是空的喔！");
-        const cartItemsDiv = document.getElementById('cart-items');
-        let html = ''; let totalAmt = 0;
-        Object.values(cart).forEach(item => {
-            if (item.qty > 0) {
-                html += `<div class="summary-item"><span><b>${item.name}</b> <span style="color:#86868b">x ${item.qty}</span></span><span style="font-weight:600">$${item.price * item.qty}</span></div>`;
-                totalAmt += (item.price * item.qty);
+            if(item.type === 'combo') {
+                comboList.innerHTML += itemHtml;
+                hasCombo = true;
+            } else {
+                singleList.innerHTML += itemHtml;
             }
         });
-        cartItemsDiv.innerHTML = html; document.getElementById('cart-total').innerText = totalAmt; switchPage('page-cart');
+
+        if(hasCombo) document.getElementById('combo-section').style.display = 'block';
+    }
+
+    function openModal(id) {
+        currentModalItem = menuData.find(i => i.id === id);
+        if (!currentModalItem) return;
+
+        currentModalQty = 1;
+        basePrice = (currentModalItem.prePrice && currentModalItem.prePrice > 0) ? currentModalItem.prePrice : currentModalItem.price;
+
+        document.getElementById('modal-title').innerText = currentModalItem.name;
+        document.getElementById('modal-desc').innerText = currentModalItem.desc || '';
+        document.getElementById('modal-price').innerHTML = currentModalItem.prePrice > 0 ? `<span class="old-price" style="font-size:1rem;">$${currentModalItem.price}</span><span class="accent-price">$${currentModalItem.prePrice}</span>` : `<span class="new-price">$${currentModalItem.price}</span>`;
+        document.getElementById('modal-qty').innerText = currentModalQty;
+
+        const form = document.getElementById('options-form');
+        form.innerHTML = '';
+
+        if (currentModalItem.optionGroups) {
+            currentModalItem.optionGroups.forEach((group, gIndex) => {
+                let groupHtml = `<div class="option-group"><div class="option-group-title">${group.name} ${group.required ? '<span class="option-required">必選</span>' : ''}</div>`;
+                group.options.forEach((opt, oIndex) => {
+                    let inputType = group.multiple ? 'checkbox' : 'radio';
+                    let priceStr = opt.priceAdd > 0 ? `<span class="option-price">+$${opt.priceAdd}</span>` : '';
+                    groupHtml += `<label class="option-row">
+                        <div class="option-label"><input type="${inputType}" class="option-input" name="group_${gIndex}" value="${oIndex}" onchange="calculateModalTotal()"><span>${opt.name}</span></div>
+                        ${priceStr}
+                    </label>`;
+                });
+                groupHtml += `</div>`;
+                form.innerHTML += groupHtml;
+            });
+        }
+        calculateModalTotal();
+        document.getElementById('itemModal').classList.add('active');
+    }
+
+    function closeModal(e) { if (e.target.id === 'itemModal') document.getElementById('itemModal').classList.remove('active'); }
+
+    function changeModalQty(change) {
+        let newQty = currentModalQty + change;
+        if (newQty < 1) newQty = 1;
+        if (!canAddStock(currentModalItem.id, newQty)) { alert(`商品庫存不足，無法再增加了！`); return; }
+        currentModalQty = newQty;
+        document.getElementById('modal-qty').innerText = currentModalQty;
+        calculateModalTotal();
+    }
+
+    function calculateModalTotal() {
+        let optionsTotal = 0;
+        if (currentModalItem.optionGroups) {
+            currentModalItem.optionGroups.forEach((group, gIndex) => {
+                document.querySelectorAll(`input[name="group_${gIndex}"]:checked`).forEach(input => {
+                    optionsTotal += group.options[input.value].priceAdd || 0;
+                });
+            });
+        }
+        let total = (basePrice + optionsTotal) * currentModalQty;
+        document.getElementById('modal-total-btn').innerText = `$${total}`;
+        return total;
+    }
+
+    function addToCart() {
+        let selectedOptions = []; let optionsPriceAdd = 0; let isValid = true;
+        if (currentModalItem.optionGroups) {
+            for (let gIndex = 0; gIndex < currentModalItem.optionGroups.length; gIndex++) {
+                let group = currentModalItem.optionGroups[gIndex];
+                let inputs = document.querySelectorAll(`input[name="group_${gIndex}"]:checked`);
+                if (group.required && inputs.length === 0) { alert(`請選擇「${group.name}」`); isValid = false; break; }
+                inputs.forEach(input => {
+                    let opt = group.options[input.value];
+                    selectedOptions.push({ name: opt.name, priceAdd: opt.priceAdd || 0 });
+                    optionsPriceAdd += opt.priceAdd || 0;
+                });
+            }
+        }
+        if (!isValid) return;
+
+        let cartItem = { id: currentModalItem.id, name: currentModalItem.name, unitPrice: basePrice + optionsPriceAdd, qty: currentModalQty, options: selectedOptions };
+        let existingIndex = cart.findIndex(i => i.id === cartItem.id && JSON.stringify(i.options) === JSON.stringify(cartItem.options));
+        if (existingIndex > -1) { cart[existingIndex].qty += currentModalQty; } else { cart.push(cartItem); }
+
+        updateCartUI();
+        document.getElementById('itemModal').classList.remove('active');
+        renderMenu(); // 刷新外層畫面按鈕
+    }
+
+    function removeCartItem(index) {
+        cart.splice(index, 1);
+        updateCartUI();
+        if (cart.length === 0) backToMenu(); else goToCart();
+        renderMenu(); // 刷新外層畫面按鈕
+    }
+
+    function updateCartUI() {
+        document.getElementById('cart-count').innerText = cart.reduce((sum, item) => sum + item.qty, 0);
+        document.getElementById('cart-total-bar').innerText = `$${cart.reduce((sum, item) => sum + (item.unitPrice * item.qty), 0)}`;
+    }
+
+    function goToCart() {
+        if (cart.length === 0) return alert("購物車還是空的喔！");
+        let html = ''; let totalAmt = 0;
+        cart.forEach((item, index) => {
+            let subtotal = item.unitPrice * item.qty; totalAmt += subtotal;
+            let optionsText = item.options.map(o => o.priceAdd > 0 ? `${o.name}(+$${o.priceAdd})` : o.name).join(', ');
+            html += `<div class="summary-item" style="position:relative; padding-right: 30px;">
+                <div style="width: 100%;"><span><b>${item.name}</b> <span style="color:#86868b">x ${item.qty}</span></span><span style="font-weight:600; float:right;">$${subtotal}</span></div>
+                ${optionsText ? `<div class="summary-options">${optionsText}</div>` : ''}
+                <button onclick="removeCartItem(${index})" style="position:absolute; right:0; top:0; background:none; border:none; color:var(--danger); font-size:1.4rem; cursor:pointer;">×</button>
+            </div>`;
+        });
+        document.getElementById('cart-items').innerHTML = html;
+        document.getElementById('cart-total').innerText = totalAmt;
+        switchPage('page-cart');
     }
 
     function backToMenu() { switchPage('page-menu'); }
@@ -283,13 +389,21 @@
         }
 
         userInfo = { type, name, identity: identityStr };
-        let html = `<p><b>訂購人：</b> ${userInfo.name}</p><p><b>聯絡資訊：</b><br>${userInfo.identity}</p><hr><p><b>餐點明細：</b></p>`;
+        
+        let html = `<div style="margin-bottom:20px;"><p style="margin:0 0 5px 0; color:#86868b; font-size:0.9rem">訂購人</p><p style="margin:0; font-weight:600; font-size:1.1rem">${userInfo.name}</p></div>`;
+        html += `<div style="margin-bottom:20px;"><p style="margin:0 0 5px 0; color:#86868b; font-size:0.9rem">聯絡資訊</p><p style="margin:0; font-weight:600; line-height:1.5">${userInfo.identity}</p></div>`;
+        html += `<hr style="border:0; border-top:1px solid #e5e5ea; margin:20px 0;"><p style="margin:0 0 15px 0; color:#86868b; font-size:0.9rem">餐點明細</p>`;
+        
         let totalAmt = 0;
-        Object.values(cart).forEach(item => {
-            if (item.qty > 0) { html += `<p>${item.name} x ${item.qty} ($${item.price * item.qty})</p>`; totalAmt += (item.price * item.qty); }
+        cart.forEach(item => {
+            let optionsText = item.options.map(o => o.name).join(', ');
+            html += `<div class="summary-item"><div style="width:100%;"><span>${item.name} <span style="color:#86868b">x ${item.qty}</span></span><span style="font-weight:600; float:right;">$${item.unitPrice * item.qty}</span></div>${optionsText ? `<div class="summary-options">${optionsText}</div>` : ''}</div>`;
+            totalAmt += (item.unitPrice * item.qty);
         });
-        html += `<hr><h2>應付總額：$${totalAmt}</h2>`;
-        document.getElementById('final-summary').innerHTML = html; switchPage('page-review');
+        html += `<hr style="border:0; border-top:1px solid #e5e5ea; margin:20px 0;"><div style="display:flex; justify-content:space-between; align-items:center;"><span style="font-weight:600; font-size:1.2rem;">應付總額</span><span style="font-weight:800; font-size:1.8rem; color:var(--accent)">$${totalAmt}</span></div>`;
+        
+        document.getElementById('final-summary').innerHTML = html; 
+        switchPage('page-review');
     }
 
     function modifyInfo() { switchPage('page-login'); }
@@ -298,13 +412,21 @@
         document.getElementById('submitBtn').innerText = "處理中...";
         document.getElementById('submitBtn').disabled = true;
 
-        let orderItems = ''; let totalAmt = 0; let rawCart = {};
-        Object.keys(cart).forEach(id => {
-            let item = cart[id];
-            if (item.qty > 0) {
-                orderItems += `${item.name} <span style="color:#86868b">x${item.qty}</span><br>`;
-                totalAmt += (item.price * item.qty);
-                rawCart[id] = item.qty; // 記錄要扣庫存的資料
+        let orderItems = ''; let totalAmt = 0; let rawCart = {}; 
+
+        cart.forEach(cartItem => {
+            let optionsText = cartItem.options.length > 0 ? ` <br><small style="color:#86868b; margin-left:10px;">(${cartItem.options.map(o=>o.name).join(', ')})</small>` : '';
+            orderItems += `<b>${cartItem.name}</b> <span style="color:#86868b">x${cartItem.qty}</span>${optionsText}<br><br>`;
+            totalAmt += (cartItem.unitPrice * cartItem.qty);
+            
+            // 解析出要扣庫存的單點項目 (套餐就拆成裡面的單品來扣)
+            let mItem = menuData.find(m => m.id === cartItem.id);
+            if(mItem) {
+                if(mItem.type === 'item') {
+                    rawCart[mItem.id] = (rawCart[mItem.id] || 0) + cartItem.qty;
+                } else if (mItem.type === 'combo' && mItem.comboItems) {
+                    mItem.comboItems.forEach(cId => { rawCart[cId] = (rawCart[cId] || 0) + cartItem.qty; });
+                }
             }
         });
 
@@ -317,9 +439,8 @@
     }
 
     function switchPage(pageId) {
-        document.querySelectorAll('.app-container > div').forEach(div => div.classList.add('hidden'));
-        document.getElementById(pageId).classList.remove('hidden');
-        window.scrollTo(0, 0);
+        document.querySelectorAll('.app-container > div').forEach(div => { if(div.id !== 'itemModal') div.classList.add('hidden'); });
+        document.getElementById(pageId).classList.remove('hidden'); window.scrollTo(0, 0);
     }
 </script>
 </body>
