@@ -19,12 +19,12 @@
         .form-group { margin-bottom: 20px; }
         label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.95rem; }
         input[type="text"], input[type="tel"], input[type="number"] { width: 100%; padding: 15px; border: 1px solid transparent; background: #f5f5f7; border-radius: 12px; box-sizing: border-box; font-size: 16px; transition: 0.3s; outline: none; }
-        input:focus { border-color: #0071e3; background: #fff; box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.1); }
+        input[type="text"]:focus, input[type="tel"]:focus, input[type="number"]:focus { border-color: #0071e3; background: #fff; box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.1); }
         
         .radio-group { display: flex; gap: 15px; margin-bottom: 15px; }
         .radio-label { flex: 1; text-align: center; padding: 12px; background: #f5f5f7; border-radius: 12px; cursor: pointer; font-weight: 600; transition: 0.3s; border: 2px solid transparent; }
-        input[type="radio"] { display: none; }
-        input[type="radio"]:checked + .radio-label { background: #fff; border-color: var(--text-main); color: var(--text-main); box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .radio-group input[type="radio"] { display: none; }
+        .radio-group input[type="radio"]:checked + .radio-label { background: #fff; border-color: var(--text-main); color: var(--text-main); box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
 
         .btn { width: 100%; padding: 16px; background: var(--button-bg); color: white; border: none; border-radius: 14px; font-size: 1.1rem; font-weight: 600; cursor: pointer; margin-top: 10px; transition: 0.2s; }
         .btn:hover { transform: scale(0.98); background: #333; }
@@ -58,11 +58,45 @@
         .option-group { margin-bottom: 20px; }
         .option-group-title { font-weight: 700; font-size: 1.1rem; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
         .option-required { font-size: 0.8rem; background: #e5e5ea; padding: 3px 8px; border-radius: 10px; color: #1d1d1f; }
-        .option-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #f1f2f6; }
-        .option-label { display: flex; align-items: center; cursor: pointer; flex: 1; }
+        .option-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #f1f2f6; cursor: pointer; }
+        .option-label { display: flex; align-items: center; flex: 1; }
         .option-price { color: var(--accent); font-size: 0.95rem; font-weight: 600; margin-left: 10px; }
-        input.option-input { margin-right: 12px; transform: scale(1.3); }
         
+        /* 🌟 高級客製化圓圈與方塊 */
+        input.option-input {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            border: 2px solid #d2d2d7;
+            margin-right: 12px;
+            outline: none;
+            cursor: pointer;
+            position: relative;
+            flex-shrink: 0;
+            transition: 0.2s;
+            background: #fff;
+        }
+        input[type="radio"].option-input { border-radius: 50%; }
+        input[type="checkbox"].option-input { border-radius: 6px; }
+
+        input.option-input:checked {
+            border-color: var(--text-main);
+            background-color: var(--text-main);
+        }
+        input[type="radio"].option-input:checked::after {
+            content: ''; position: absolute;
+            top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 8px; height: 8px;
+            background: white; border-radius: 50%;
+        }
+        input[type="checkbox"].option-input:checked::after {
+            content: ''; position: absolute;
+            top: 40%; left: 50%; transform: translate(-50%, -50%) rotate(45deg);
+            width: 5px; height: 10px;
+            border: solid white; border-width: 0 2px 2px 0;
+        }
+
         .ig-notice { background: rgba(0, 113, 227, 0.05); padding: 15px; border-radius: 12px; margin-top: 12px; font-size: 0.9rem; line-height: 1.6; color: #1d1d1f; text-align: center; border: 1px solid rgba(0, 113, 227, 0.1);}
         .ig-notice a { color: #0071e3; font-weight: 700; text-decoration: none; display: inline-block; margin-top: 5px; background: #fff; padding: 5px 12px; border-radius: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);}
         
@@ -75,7 +109,7 @@
 
 <div class="app-container">
     <div id="page-menu" class="fade-in">
-        <h2 style="margin-bottom: 10px;">本日嚴選菜單</h2>
+        <h2 style="margin-bottom: 10px;">花菓山預購菜單</h2>
         <p style="text-align:center; color:#86868b; font-size: 0.85rem; margin-top: 0; margin-bottom: 25px;">* 圖片僅供參考，請以實物為準</p>
         
         <div id="combo-section" style="display:none;">
@@ -146,7 +180,7 @@
             <label id="igLabel">Instagram 帳號 (與電話擇一填寫)</label>
             <input type="text" id="igInfo" placeholder="您的 IG ID">
             <div class="ig-notice">
-                📢 為了確保能即時通知您取餐<br>請務必追蹤我們的官方帳號！<br>
+                📢 為了確保能傳送確認信息給您<br>請務必追蹤我們的官方帳號！<br>
                 <a href="https://www.instagram.com/twlmsh707" target="_blank">👉 點我追蹤 @twlmsh707</a>
             </div>
         </div>
@@ -203,7 +237,11 @@
 
         menuData.forEach((item) => {
             let activePrice = (item.prePrice && item.prePrice > 0) ? item.prePrice : item.price;
-            let priceHtml = item.prePrice > 0 ? `<span class="old-price">$${item.price}</span><span class="accent-price"><span style="font-size:0.85rem; margin-right:4px;">特價</span>$${item.prePrice}</span>` : `<span class="new-price">$${item.price}</span>`;
+            
+            // 🌟 這裡判斷標籤名稱：單點顯示「預購價」，套餐顯示「特價」
+            let priceLabel = item.type === 'combo' ? '特價' : '預購價';
+            let priceHtml = item.prePrice > 0 ? `<span class="old-price">$${item.price}</span><span class="accent-price"><span style="font-size:0.85rem; margin-right:4px;">${priceLabel}</span>$${item.prePrice}</span>` : `<span class="new-price">$${item.price}</span>`;
+            
             let imgSrc = item.img ? item.img : 'https://via.placeholder.com/80/f5f5f7/86868b?text=Image';
             
             let isSoldOut = false;
@@ -243,8 +281,11 @@
         currentModalQty = 1;
         basePrice = (currentModalItem.prePrice && currentModalItem.prePrice > 0) ? currentModalItem.prePrice : currentModalItem.price;
 
+        // 🌟 彈跳視窗內的價格標籤也同步：單點顯示「預購價」，套餐顯示「特價」
+        let labelText = currentModalItem.type === 'combo' ? '特價' : '預購價';
+
         document.getElementById('modal-title').innerText = currentModalItem.name;
-        document.getElementById('modal-price').innerHTML = currentModalItem.prePrice > 0 ? `<span class="old-price" style="font-size:1rem;">$${currentModalItem.price}</span><span class="accent-price">$${currentModalItem.prePrice}</span>` : `<span class="new-price">$${currentModalItem.price}</span>`;
+        document.getElementById('modal-price').innerHTML = currentModalItem.prePrice > 0 ? `<span class="old-price" style="font-size:1rem;">$${currentModalItem.price}</span><span class="accent-price"><span style="font-size:0.85rem; margin-right:4px;">${labelText}</span>$${currentModalItem.prePrice}</span>` : `<span class="new-price">$${currentModalItem.price}</span>`;
         document.getElementById('modal-qty').innerText = currentModalQty;
 
         const form = document.getElementById('options-form');
@@ -254,7 +295,7 @@
             let mainData = menuData.find(m => m.id === currentModalItem.mainItem);
             document.getElementById('modal-desc').innerText = `✅ 主餐：${mainData?mainData.name:'已綁定'}`;
 
-            // 1. 飲料區 (必填)
+            // 1. 飲料區 (必選)
             if(currentModalItem.drinks && currentModalItem.drinks.length > 0) {
                 let dHtml = `<div class="option-group"><div class="option-group-title">選擇飲料 <span class="option-required">必選1項</span></div>`;
                 currentModalItem.drinks.forEach(d => {
@@ -275,7 +316,7 @@
                 form.innerHTML += dHtml;
             }
 
-            // 2. 🌟 必選配餐區 (如: 蛋)
+            // 2. 必選配餐區 (如蛋)
             if(currentModalItem.sides && currentModalItem.sides.length > 0) {
                 let sHtml = `<div class="option-group"><div class="option-group-title">選擇配餐 <span class="option-required">必選1項</span></div>`;
                 currentModalItem.sides.forEach(s => {
@@ -296,7 +337,7 @@
                 form.innerHTML += sHtml;
             }
 
-            // 3. 加購區 (選填)
+            // 3. 加購區 (多選)
             if(currentModalItem.extras && currentModalItem.extras.length > 0) {
                 let eHtml = `<div class="option-group"><div class="option-group-title">加購好料 <span style="font-size:0.8rem; color:#86868b; font-weight:normal;">(可複選)</span></div>`;
                 currentModalItem.extras.forEach(e => {
