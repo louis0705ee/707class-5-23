@@ -27,6 +27,7 @@
         
         button { padding: 10px 15px; background: var(--text-main); color: white; border: none; border-radius: 10px; cursor: pointer; margin-right: 5px; }
         button.red { background: rgba(255, 59, 48, 0.1); color: var(--danger); }
+        button.green { background: var(--success); color: white; }
         
         @media (max-width: 768px) {
             table, thead, tbody, th, td, tr { display: block; }
@@ -66,12 +67,16 @@
 
     <div class="container">
         <div class="container-header">
-            <h2>📦 單點與庫存管理</h2>
-            <div><button onclick="resetMenuToDefault()" style="background:var(--danger);">⚠️ 重置為預設菜單</button> <button onclick="saveMenuToCloud()" style="background:var(--primary)">💾 保存庫存發布</button></div>
+            <h2>📦 單點與套餐管理</h2>
+            <div style="display: flex; gap: 5px; flex-wrap: wrap;">
+                <!-- 💡 幫你把新增單點按鈕加回來了！ -->
+                <button class="green" onclick="addSingleItem()">＋ 新增單點</button>
+                <button onclick="resetMenuToDefault()" style="background:var(--danger);">⚠️ 載入你的專屬套餐</button> 
+                <button onclick="saveMenuToCloud()" style="background:var(--primary)">💾 保存發布</button>
+            </div>
         </div>
-        <p style="color:#86868b; font-size:0.9rem;">為了支援加蛋、換飲料等複雜功能，項目已由系統內建保護。您可在此直接管理庫存與修改對外名稱圖片。</p>
         <table>
-            <thead><tr><th>分類</th><th>名稱</th><th width="80">原價</th><th width="80">特價</th><th width="90">庫存</th><th>圖片連結</th></tr></thead>
+            <thead><tr><th>分類</th><th>名稱</th><th width="80">原價</th><th width="80">特價</th><th width="90">庫存</th><th>圖片連結</th><th width="80">操作</th></tr></thead>
             <tbody id="menu-edit-list"></tbody>
         </table>
     </div>
@@ -81,63 +86,46 @@
     let currentMenu = [];
     let currentOrders = [];
 
-    // =================================================================
-    // 🌟 在這裡設定你們班「真正要賣的」菜單！
-    // =================================================================
+    // 🌟 這裡就是為你量身打造的專屬套餐邏輯！
     const defaultMenu = [
-        // 🍔 你的第一個商品：測試1
-        {
-            id: "m1", 
-            type: "item", 
-            name: "測試1", 
-            desc: "這是測試1的說明", 
-            price: 800,       // 原價 
-            prePrice: 0,      // 沒有預購價就填 0
-            stock: 100,       // 總庫存
-            img: "", 
-            optionGroups: []  // 不需要選項就留空 []
-        },
+        // 🍔 這裡是你原本的單點，都可以隨便改！
+        { id: "m_main", type: "item", name: "招牌炒泡麵", desc: "主餐單點", price: 50, prePrice: 40, stock: 50, img: "", optionGroups: [] },
+        { id: "m_drink1", type: "item", name: "冰紅茶", desc: "解渴神飲", price: 20, prePrice: 0, stock: 50, img: "", optionGroups: [] },
+        { id: "m_drink2", type: "item", name: "特調奶茶", desc: "香濃好喝", price: 35, prePrice: 0, stock: 50, img: "", optionGroups: [] },
 
-        // 🍔 你的第二個商品：測試2
+        // 👑 這是你要求的「完美套餐」
         {
-            id: "m2", 
-            type: "item", 
-            name: "測試2", 
-            desc: "這是測試2的說明", 
-            price: 862, 
-            prePrice: 0, 
-            stock: 100, 
-            img: "", 
-            optionGroups: []
-        },
-
-        // 🍔 你的第三個商品：猴子
-        {
-            id: "m3", 
-            type: "item", 
-            name: "猴子", 
-            desc: "猴子的說明", 
-            price: 700, 
-            prePrice: 0, 
-            stock: 100, 
-            img: "", 
-            optionGroups: []
-        },
-
-        // 👑 如果你需要套餐，可以參考這個格式設定
-        {
-            id: "c1", 
+            id: "c_combo1", 
             type: "combo", 
-            name: "動物測試套餐", 
-            desc: "測試1 + 猴子", 
-            price: 1500, 
-            prePrice: 1400, 
+            name: "吃飽飽超值套餐", 
+            desc: "含炒泡麵 + 飲料 (可加購蛋、換飲料補差價)", 
+            price: 70, 
+            prePrice: 60, 
             img: "",
-            comboItems: ["m1", "m3"], // 💡 買套餐會扣除 m1(測試1) 和 m3(猴子) 的庫存
-            optionGroups: []
+            // 💡 庫存連動：買套餐，會自動去扣 m_main(炒泡麵) 跟 m_drink1(冰紅茶) 的庫存！
+            comboItems: ["m_main", "m_drink1"], 
+            optionGroups: [
+                { 
+                    name: "主餐加購", 
+                    required: false, // 不是必填，客人可以不加
+                    multiple: true,  // 允許客人複選
+                    options: [
+                        { name: "加一顆蛋", priceAdd: 15 }, // 💡 加蛋 +15元
+                        { name: "加起司", priceAdd: 10 }
+                    ] 
+                },
+                { 
+                    name: "選擇飲料", 
+                    required: true,  // 必填，一定要選一個飲料
+                    multiple: false, // 只能單選
+                    options: [
+                        { name: "冰紅茶", priceAdd: 0 }, 
+                        { name: "換特調奶茶", priceAdd: 15 } // 💡 換飲料自動 +15元！
+                    ] 
+                }
+            ]
         }
     ];
-    // =================================================================
 
     async function checkLogin() {
         const user = document.getElementById('adminUser').value;
@@ -192,9 +180,33 @@
     }
 
     async function resetMenuToDefault() {
-        if(confirm("警告：這會載入程式碼內的預設菜單，確定要執行嗎？")) {
+        if(confirm("警告：這會載入程式碼內的預設菜單與你的專屬套餐，確定要執行嗎？")) {
             currentMenu = JSON.parse(JSON.stringify(defaultMenu));
             await saveMenuToCloud();
+        }
+    }
+
+    // 💡 新增單點的功能回來了！
+    function addSingleItem() {
+        currentMenu.push({
+            id: 'm' + Date.now(),
+            type: 'item',
+            name: "新商品名稱",
+            desc: "",
+            price: 0,
+            prePrice: 0,
+            stock: 50,
+            img: "",
+            optionGroups: [] // 單點預設沒有複雜選項
+        });
+        renderMenuEditor();
+    }
+
+    // 💡 刪除商品的功能也回來了！
+    function removeItem(index) {
+        if(confirm("確定要刪除這個商品嗎？")) {
+            currentMenu.splice(index, 1);
+            renderMenuEditor();
         }
     }
 
@@ -206,11 +218,12 @@
             
             html += `<tr>
                 <td data-label="分類">${typeTag}</td>
-                <td data-label="名稱"><b>${item.name}</b><br><small style="color:#86868b">${item.desc||''}</small></td>
+                <td data-label="名稱"><input type="text" value="${item.name}" id="m-name-${i}"></td>
                 <td data-label="原價"><input type="number" value="${item.price}" id="m-price-${i}"></td>
                 <td data-label="特價"><input type="number" value="${item.prePrice||''}" id="m-prePrice-${i}"></td>
                 <td data-label="庫存">${stockInput}</td>
                 <td data-label="圖片"><input type="text" value="${item.img}" id="m-img-${i}"></td>
+                <td data-label="操作"><button class="red" onclick="removeItem(${i})">刪除</button></td>
             </tr>`;
         });
         document.getElementById('menu-edit-list').innerHTML = html;
@@ -218,6 +231,7 @@
 
     async function saveMenuToCloud() {
         currentMenu.forEach((item, i) => {
+            item.name = document.getElementById(`m-name-${i}`).value;
             item.price = parseInt(document.getElementById(`m-price-${i}`).value) || 0;
             item.prePrice = parseInt(document.getElementById(`m-prePrice-${i}`).value) || 0;
             if(item.type === 'item') item.stock = parseInt(document.getElementById(`m-stock-${i}`).value) || 0;
