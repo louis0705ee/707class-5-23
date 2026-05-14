@@ -27,7 +27,6 @@
         
         button { padding: 10px 15px; background: var(--text-main); color: white; border: none; border-radius: 10px; cursor: pointer; margin-right: 5px; }
         button.red { background: rgba(255, 59, 48, 0.1); color: var(--danger); }
-        button.green { background: var(--success); color: white; }
         
         @media (max-width: 768px) {
             table, thead, tbody, th, td, tr { display: block; }
@@ -57,7 +56,7 @@
     <div class="container">
         <div class="container-header">
             <h2>即時訂單管理</h2>
-            <div><button onclick="exportOrders()">📥 匯出</button><button onclick="loadOrders()" style="background:#f5f5f7; color:#333;">↻ 整理</button></div>
+            <div><button onclick="exportOrders()">📥 匯出 Excel</button><button onclick="loadOrders()" style="background:#f5f5f7; color:#333;">↻ 整理</button></div>
         </div>
         <table>
             <thead><tr><th>下單時間</th><th>顧客資訊</th><th>餐點明細</th><th>金額</th><th>操作</th></tr></thead>
@@ -67,32 +66,51 @@
 
     <div class="container">
         <div class="container-header">
-            <h2>單點商品設定 (總量管制)</h2>
-            <div><button class="green" onclick="addSingleItem()">＋ 新增單品</button><button onclick="saveMenuToCloud()" style="background:var(--primary)">💾 保存發布</button></div>
+            <h2>📦 單點與庫存管理</h2>
+            <div><button onclick="resetMenuToDefault()" style="background:var(--danger);">⚠️ 重置預設客製化菜單</button> <button onclick="saveMenuToCloud()" style="background:var(--primary)">💾 保存庫存發布</button></div>
         </div>
+        <p style="color:#86868b; font-size:0.9rem;">為了支援加蛋、換飲料等複雜功能，項目已由系統內建保護。您可在此直接管理庫存與修改對外名稱圖片。</p>
         <table>
-            <thead><tr><th width="60">預覽</th><th>商品名稱</th><th width="90">原價</th><th width="90">預購價</th><th width="90">總庫存量</th><th>圖片連結</th><th width="70">操作</th></tr></thead>
-            <tbody id="single-list"></tbody>
-        </table>
-    </div>
-
-    <div class="container">
-        <div class="container-header">
-            <h2>套餐組合設定 (共用單點庫存)</h2>
-            <button class="green" onclick="addComboItem()">＋ 新增套餐</button>
-        </div>
-        <p style="color:#86868b; font-size:0.9rem; margin-top:-10px;">💡 勾選下方單品組成套餐，客人買套餐會自動扣除對應的單品庫存喔！</p>
-        <table>
-            <thead><tr><th>套餐名稱</th><th width="100">原價</th><th width="100">預購價</th><th>包含內容 (勾選)</th><th width="70">操作</th></tr></thead>
-            <tbody id="combo-list"></tbody>
+            <thead><tr><th>分類</th><th>名稱</th><th width="80">原價</th><th width="80">特價</th><th width="90">庫存</th><th>圖片連結</th></tr></thead>
+            <tbody id="menu-edit-list"></tbody>
         </table>
     </div>
 </div>
 
 <script>
-    let currentSingleItems = [];
-    let currentCombos = [];
+    let currentMenu = [];
     let currentOrders = [];
+
+    // 🌟 在這裡設定你的客製化菜單大全
+    const defaultMenu = [
+        // --- 單點區 ---
+        {
+            id: "m1", type: "item", name: "招牌炒泡麵", desc: "純手工現炒", price: 60, prePrice: 50, stock: 50, img: "",
+            optionGroups: [
+                { name: "辣度選擇", required: true, multiple: false, options: [{name:"不辣"}, {name:"小辣"}, {name:"大辣"}] },
+                { name: "加購好料", required: false, multiple: true, options: [{name:"加一顆蛋", priceAdd: 10}, {name:"加起司", priceAdd: 15}] }
+            ]
+        },
+        { id: "m2", type: "item", name: "彈珠汽水", desc: "消暑聖品", price: 20, prePrice: 0, stock: 50, img: "", optionGroups: [] },
+        { id: "m3", type: "item", name: "特調奶茶", desc: "濃郁奶香", price: 35, prePrice: 30, stock: 40, img: "", 
+            optionGroups: [{ name: "甜度", required: true, multiple: false, options: [{name:"正常甜"}, {name:"半糖"}] }]
+        },
+
+        // --- 套餐區 ---
+        {
+            id: "c1", type: "combo", name: "吃飽飽超值套餐", desc: "炒泡麵 + 彈珠汽水 (可補差價升級奶茶)", 
+            price: 70, prePrice: 65, img: "",
+            comboItems: ["m1", "m2"], // 設定套餐包含的單點ID，會自動扣除對應庫存
+            optionGroups: [
+                { name: "炒泡麵辣度", required: true, multiple: false, options: [{name:"不辣"}, {name:"小辣"}, {name:"大辣"}] },
+                { name: "炒泡麵加購", required: false, multiple: true, options: [{name:"加蛋", priceAdd: 10}] },
+                { name: "飲料選擇", required: true, multiple: false, options: [
+                    {name: "維持彈珠汽水", priceAdd: 0},
+                    {name: "升級特調奶茶", priceAdd: 15} // 這裡設定換飲料要補多少錢
+                ]}
+            ]
+        }
+    ];
 
     async function checkLogin() {
         const user = document.getElementById('adminUser').value;
@@ -112,7 +130,7 @@
         currentOrders.forEach((order, i) => {
             html += `<tr>
                 <td data-label="時間">${order.time}</td><td data-label="資訊"><b>${order.name}</b><br><small>${order.identity}</small></td>
-                <td data-label="明細">${order.items}</td><td data-label="金額"><b>$${order.total}</b></td>
+                <td data-label="明細" style="line-height:1.5;">${order.items}</td><td data-label="金額"><b>$${order.total}</b></td>
                 <td data-label="操作"><button class="red" onclick="deleteOrder(${i})">刪除</button></td>
             </tr>`;
         });
@@ -122,7 +140,11 @@
     function exportOrders() {
         if(currentOrders.length===0) return;
         let csv = "\ufeff下單時間,顧客姓名,聯絡資訊,餐點明細,總金額\n";
-        currentOrders.forEach(o => csv += `${o.time},${o.name},${o.identity.replace(/<br>/g,' ')},${o.items.replace(/<br>/g,' | ').replace(/,/g,' ')},${o.total}\n`);
+        currentOrders.forEach(o => {
+            let cleanId = o.identity.replace(/<br>/g, '  ').replace(/,/g, ' ');
+            let cleanItem = o.items.replace(/<br>/g, ' | ').replace(/<[^>]*>?/gm, '').replace(/,/g, ' ');
+            csv += `${o.time},${o.name},${cleanId},${cleanItem},${o.total}\n`;
+        });
         const link = document.createElement("a"); link.href = URL.createObjectURL(new Blob([csv], {type:'text/csv;charset=utf-8;'}));
         link.download = `訂單_${new Date().toLocaleDateString()}.csv`; link.click();
     }
@@ -136,76 +158,45 @@
 
     async function loadMenu() {
         const resp = await fetch('/api/menu');
-        const data = await resp.json();
-        // 分類舊資料與新資料
-        currentSingleItems = data.filter(i => !i.type || i.type === 'item').map(i => ({...i, type:'item', stock: i.stock||0}));
-        currentCombos = data.filter(i => i.type === 'combo');
+        let data = await resp.json();
+        if (!data || data.length === 0 || !data[0].optionGroups) { currentMenu = JSON.parse(JSON.stringify(defaultMenu)); } 
+        else { currentMenu = data; }
         renderMenuEditor();
     }
 
-    function renderMenuEditor() {
-        // 渲染單點
-        let sHtml = '';
-        currentSingleItems.forEach((item, i) => {
-            sHtml += `<tr>
-                <td data-label="預覽"><img src="${item.img||'https://via.placeholder.com/60'}" style="width:50px; border-radius:8px;"></td>
-                <td data-label="商品名稱"><input type="text" value="${item.name}" id="s-name-${i}"></td>
-                <td data-label="原價"><input type="number" value="${item.price}" id="s-price-${i}"></td>
-                <td data-label="預購價"><input type="number" value="${item.prePrice||''}" id="s-prePrice-${i}"></td>
-                <td data-label="總庫存量"><input type="number" value="${item.stock}" id="s-stock-${i}" style="border-color:var(--primary); font-weight:bold;"></td>
-                <td data-label="圖片連結"><input type="text" value="${item.img}" id="s-img-${i}"></td>
-                <td data-label="操作"><button class="red" onclick="removeSingle(${i})">移除</button></td>
-            </tr>`;
-        });
-        document.getElementById('single-list').innerHTML = sHtml || '<tr><td colspan="7">尚無商品</td></tr>';
-
-        // 渲染套餐
-        let cHtml = '';
-        currentCombos.forEach((combo, i) => {
-            let checkboxes = currentSingleItems.map(si => {
-                let checked = (combo.comboItems || []).includes(si.id) ? 'checked' : '';
-                return `<label style="display:inline-block; margin-right:10px; font-size:0.9rem;"><input type="checkbox" class="combo-chk-${i}" value="${si.id}" ${checked}> ${si.name}</label>`;
-            }).join('');
-
-            cHtml += `<tr>
-                <td data-label="套餐名稱"><input type="text" value="${combo.name}" id="c-name-${i}"></td>
-                <td data-label="原價"><input type="number" value="${combo.price}" id="c-price-${i}"></td>
-                <td data-label="預購價"><input type="number" value="${combo.prePrice||''}" id="c-prePrice-${i}"></td>
-                <td data-label="包含內容"><div style="padding:10px 0;">${checkboxes}</div></td>
-                <td data-label="操作"><button class="red" onclick="removeCombo(${i})">移除</button></td>
-            </tr>`;
-        });
-        document.getElementById('combo-list').innerHTML = cHtml || '<tr><td colspan="5">尚無套餐</td></tr>';
+    async function resetMenuToDefault() {
+        if(confirm("警告：這會載入程式碼內的預設菜單，確定要執行嗎？")) {
+            currentMenu = JSON.parse(JSON.stringify(defaultMenu));
+            await saveMenuToCloud();
+        }
     }
 
-    function addSingleItem() { currentSingleItems.push({ id: 'm'+Date.now(), name: "新單品", price: 0, stock: 50, img: "" }); renderMenuEditor(); }
-    function removeSingle(i) { currentSingleItems.splice(i, 1); renderMenuEditor(); }
-    
-    function addComboItem() { currentCombos.push({ id: 'c'+Date.now(), name: "新套餐", price: 0, comboItems: [] }); renderMenuEditor(); }
-    function removeCombo(i) { currentCombos.splice(i, 1); renderMenuEditor(); }
+    function renderMenuEditor() {
+        let html = '';
+        currentMenu.forEach((item, i) => {
+            let typeTag = item.type === 'combo' ? '<span style="color:#ff3b30; font-weight:bold;">套餐</span>' : '<span style="color:#0071e3; font-weight:bold;">單點</span>';
+            let stockInput = item.type === 'combo' ? '<span style="color:#86868b">無(依單品)</span>' : `<input type="number" value="${item.stock||0}" id="m-stock-${i}" style="border-color:var(--primary); font-weight:bold;">`;
+            
+            html += `<tr>
+                <td data-label="分類">${typeTag}</td>
+                <td data-label="名稱"><b>${item.name}</b><br><small style="color:#86868b">${item.desc||''}</small></td>
+                <td data-label="原價"><input type="number" value="${item.price}" id="m-price-${i}"></td>
+                <td data-label="特價"><input type="number" value="${item.prePrice||''}" id="m-prePrice-${i}"></td>
+                <td data-label="庫存">${stockInput}</td>
+                <td data-label="圖片"><input type="text" value="${item.img}" id="m-img-${i}"></td>
+            </tr>`;
+        });
+        document.getElementById('menu-edit-list').innerHTML = html;
+    }
 
     async function saveMenuToCloud() {
-        const newSingle = currentSingleItems.map((item, i) => ({
-            id: item.id, type: 'item',
-            name: document.getElementById(`s-name-${i}`).value,
-            price: parseInt(document.getElementById(`s-price-${i}`).value) || 0,
-            prePrice: parseInt(document.getElementById(`s-prePrice-${i}`).value) || 0,
-            stock: parseInt(document.getElementById(`s-stock-${i}`).value) || 0,
-            img: document.getElementById(`s-img-${i}`).value
-        }));
-
-        const newCombo = currentCombos.map((item, i) => {
-            let selected = Array.from(document.querySelectorAll(`.combo-chk-${i}:checked`)).map(cb => cb.value);
-            return {
-                id: item.id, type: 'combo',
-                name: document.getElementById(`c-name-${i}`).value,
-                price: parseInt(document.getElementById(`c-price-${i}`).value) || 0,
-                prePrice: parseInt(document.getElementById(`c-prePrice-${i}`).value) || 0,
-                comboItems: selected
-            };
+        currentMenu.forEach((item, i) => {
+            item.price = parseInt(document.getElementById(`m-price-${i}`).value) || 0;
+            item.prePrice = parseInt(document.getElementById(`m-prePrice-${i}`).value) || 0;
+            if(item.type === 'item') item.stock = parseInt(document.getElementById(`m-stock-${i}`).value) || 0;
+            item.img = document.getElementById(`m-img-${i}`).value;
         });
-
-        await fetch('/api/menu', { method: 'PUT', headers: { "Content-Type": "application/json" }, body: JSON.stringify([...newSingle, ...newCombo]) });
+        await fetch('/api/menu', { method: 'PUT', headers: { "Content-Type": "application/json" }, body: JSON.stringify(currentMenu) });
         alert("✅ 菜單與庫存已發布更新！"); loadMenu();
     }
 </script>
