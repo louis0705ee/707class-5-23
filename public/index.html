@@ -18,7 +18,7 @@
         
         .form-group { margin-bottom: 20px; }
         label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.95rem; }
-        input[type="text"], input[type="tel"], input[type="number"] { width: 100%; padding: 15px; border: 1px solid transparent; background: #f5f5f7; border-radius: 12px; box-sizing: border-box; font-size: 16px; transition: 0.3s; outline: none; -webkit-appearance: none; }
+        input[type="text"], input[type="tel"], input[type="number"] { width: 100%; padding: 15px; border: 1px solid transparent; background: #f5f5f7; border-radius: 12px; box-sizing: border-box; font-size: 16px; transition: 0.3s; outline: none; }
         input:focus { border-color: #0071e3; background: #fff; box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.1); }
         
         .radio-group { display: flex; gap: 15px; margin-bottom: 15px; }
@@ -42,7 +42,7 @@
         .new-price { color: var(--text-main); font-weight: 700; font-size: 1.2rem; }
         .accent-price { color: var(--accent); font-weight: 700; font-size: 1.2rem; }
 
-        .cart-bar { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 440px; z-index: 100; padding: 15px; border-radius: 20px; background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); box-shadow: 0 10px 30px rgba(0,0,0,0.15); border: 1px solid rgba(255,255,255,0.5); }
+        .cart-bar { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 440px; z-index: 100; padding: 15px; border-radius: 20px; background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(15px); box-shadow: 0 10px 30px rgba(0,0,0,0.15); border: 1px solid rgba(255,255,255,0.5); }
         .cart-bar .btn { margin: 0; box-shadow: none; display: flex; justify-content: space-between; align-items: center; }
 
         .summary-box { background: #f5f5f7; padding: 25px; border-radius: 18px; margin-bottom: 25px; }
@@ -56,15 +56,15 @@
         .modal-overlay.active .modal-content { transform: translateY(0); }
         
         .option-group { margin-bottom: 20px; }
-        .option-group-title { font-weight: 700; font-size: 1.1rem; margin-bottom: 10px; display: flex; justify-content: space-between; }
-        .option-required { font-size: 0.8rem; background: #e5e5ea; padding: 2px 6px; border-radius: 4px; color: #1d1d1f; }
+        .option-group-title { font-weight: 700; font-size: 1.1rem; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .option-required { font-size: 0.8rem; background: #e5e5ea; padding: 3px 8px; border-radius: 10px; color: #1d1d1f; }
         .option-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #f1f2f6; }
         .option-label { display: flex; align-items: center; cursor: pointer; flex: 1; }
-        .option-price { color: var(--accent); font-size: 0.9rem; font-weight: 600; margin-left: 10px; }
-        input.option-input { margin-right: 10px; transform: scale(1.2); }
+        .option-price { color: var(--accent); font-size: 0.95rem; font-weight: 600; margin-left: 10px; }
+        input.option-input { margin-right: 12px; transform: scale(1.3); }
         
-        .ig-notice { background: rgba(0, 113, 227, 0.05); padding: 15px; border-radius: 12px; margin-top: 12px; font-size: 0.9rem; line-height: 1.6; color: #1d1d1f; text-align: center; }
-        .ig-notice a { color: #0071e3; font-weight: 700; text-decoration: none; display: inline-block; margin-top: 5px; }
+        .ig-notice { background: rgba(0, 113, 227, 0.05); padding: 15px; border-radius: 12px; margin-top: 12px; font-size: 0.9rem; line-height: 1.6; color: #1d1d1f; text-align: center; border: 1px solid rgba(0, 113, 227, 0.1);}
+        .ig-notice a { color: #0071e3; font-weight: 700; text-decoration: none; display: inline-block; margin-top: 5px; background: #fff; padding: 5px 12px; border-radius: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);}
         
         .qty-controls { display: flex; align-items: center; background: #f5f5f7; border-radius: 20px; padding: 5px 15px; }
         .qty-btn { width: 34px; height: 34px; background: none; border: none; font-size: 1.4rem; cursor: pointer; font-weight: bold;}
@@ -75,16 +75,16 @@
 
 <div class="app-container">
     <div id="page-menu" class="fade-in">
-        <h2 style="margin-bottom: 10px;">花菓山預購菜單</h2>
+        <h2 style="margin-bottom: 10px;">本日嚴選菜單</h2>
         <p style="text-align:center; color:#86868b; font-size: 0.85rem; margin-top: 0; margin-bottom: 25px;">* 圖片僅供參考，請以實物為準</p>
-        
-        <div class="section-title">✨ 單點美味</div>
-        <div id="single-list"><p style="text-align:center; color:#86868b;">載入中...</p></div>
         
         <div id="combo-section" style="display:none;">
             <div class="section-title">👑 超值套餐區</div>
             <div id="combo-list"></div>
         </div>
+        
+        <div class="section-title">✨ 單點美味</div>
+        <div id="single-list"><p style="text-align:center; color:#86868b;">載入中...</p></div>
 
         <div class="cart-bar">
             <button class="btn" onclick="goToCart()">
@@ -94,18 +94,18 @@
         </div>
     </div>
 
-    <!-- 選項彈窗 -->
+    <!-- 選項彈窗 (Uber Eats 風格) -->
     <div class="modal-overlay" id="itemModal" onclick="closeModal(event)">
         <div class="modal-content" onclick="event.stopPropagation()">
-            <div style="margin-bottom: 20px;">
-                <h2 id="modal-title" style="margin: 0; text-align: left;">商品名稱</h2>
-                <p id="modal-desc" style="color: #86868b; font-size: 0.9rem; margin-top: 5px;"></p>
-                <div class="price-area" id="modal-price" style="font-size: 1.2rem;"></div>
+            <div style="margin-bottom: 20px; padding-bottom:15px; border-bottom:1px solid #f1f2f6;">
+                <h2 id="modal-title" style="margin: 0; text-align: left; font-size:1.4rem;">商品名稱</h2>
+                <div class="price-area" id="modal-price" style="font-size: 1.3rem; margin-top:5px;"></div>
+                <p id="modal-desc" style="color: var(--primary); font-size: 0.9rem; margin-top: 8px; font-weight:bold;"></p>
             </div>
             
             <form id="options-form"></form>
             
-            <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 20px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 25px;">
                 <div class="qty-controls">
                     <button type="button" class="qty-btn" onclick="changeModalQty(-1)">-</button>
                     <span class="qty-display" id="modal-qty">1</span>
@@ -125,7 +125,7 @@
         <button class="btn btn-secondary" onclick="backToMenu()">繼續點餐</button>
     </div>
 
-    <!-- 聯絡資訊 -->
+    <!-- 聯絡資訊 (含 IG 追蹤提示) -->
     <div id="page-login" class="hidden">
         <h2>聯絡資訊</h2>
         <div class="radio-group">
@@ -146,7 +146,7 @@
             <label id="igLabel">Instagram 帳號 (與電話擇一填寫)</label>
             <input type="text" id="igInfo" placeholder="您的 IG ID">
             <div class="ig-notice">
-                為了確保能能傳送確認信息給您，建議追蹤我們的官方帳號！<br>
+                📢 為了確保能即時通知您取餐<br>請務必追蹤我們的官方帳號！<br>
                 <a href="https://www.instagram.com/twlmsh707" target="_blank">👉 點我追蹤 @twlmsh707</a>
             </div>
         </div>
@@ -180,33 +180,25 @@
         } catch (err) { document.getElementById('single-list').innerHTML = '<p style="color:red; text-align:center;">連線異常，請重新整理</p>'; }
     };
 
-    function canAddStock(id, qtyToAdd) {
-        let item = menuData.find(i => i.id === id);
-        if (!item) return false;
+    // 🌟 全新庫存檢查系統：連動查詢真實單品的庫存
+    function checkStock(itemId, qtyNeeded) {
+        let item = menuData.find(i => i.id === itemId);
+        if(!item) return false;
 
-        const getUsedQty = (singleItemId) => {
-            let used = 0;
-            cart.forEach(cItem => {
-                if(cItem.id === singleItemId) used += cItem.qty;
-                let cMenuItem = menuData.find(m => m.id === cItem.id);
-                if(cMenuItem && cMenuItem.type === 'combo' && cMenuItem.comboItems && cMenuItem.comboItems.includes(singleItemId)){
-                    used += cItem.qty;
-                }
+        // 計算購物車已經用了多少這個真實單品
+        let used = 0;
+        cart.forEach(cItem => {
+            // 單點直接扣
+            if(cItem.id === itemId) used += cItem.qty;
+            // 套餐裡面的主餐
+            if(cItem.mainItem === itemId) used += cItem.qty;
+            // 套餐裡面的飲料加購選項
+            cItem.options.forEach(opt => {
+                if(opt.id === itemId) used += cItem.qty;
             });
-            return used;
-        };
+        });
 
-        if (item.type === 'item') {
-            return (getUsedQty(id) + qtyToAdd) <= item.stock;
-        } else if (item.type === 'combo') {
-            if (!item.comboItems || item.comboItems.length === 0) return true;
-            for (let cId of item.comboItems) {
-                let sItem = menuData.find(i => i.id === cId);
-                if (sItem && (getUsedQty(cId) + qtyToAdd) > sItem.stock) return false;
-            }
-            return true;
-        }
-        return false;
+        return (used + qtyNeeded) <= item.stock;
     }
 
     function renderMenu() {
@@ -215,31 +207,37 @@
         singleList.innerHTML = ''; comboList.innerHTML = '';
         let hasCombo = false;
 
-        menuData.forEach((item, index) => {
+        menuData.forEach((item) => {
             let activePrice = (item.prePrice && item.prePrice > 0) ? item.prePrice : item.price;
-            let priceHtml = item.prePrice > 0 ? `<span class="old-price">$${item.price}</span><span class="accent-price"><span style="font-size:0.85rem; margin-right:4px;">預購價</span>$${item.prePrice}</span>` : `<span class="new-price">$${item.price}</span>`;
+            let priceHtml = item.prePrice > 0 ? `<span class="old-price">$${item.price}</span><span class="accent-price"><span style="font-size:0.85rem; margin-right:4px;">特價</span>$${item.prePrice}</span>` : `<span class="new-price">$${item.price}</span>`;
             let imgSrc = item.img ? item.img : 'https://via.placeholder.com/80/f5f5f7/86868b?text=Image';
             
-            let isSoldOut = !canAddStock(item.id, 1);
+            // 判斷是否售完 (套餐看主餐庫存，單點看自己庫存)
+            let isSoldOut = false;
+            let descHtml = '';
+            if(item.type === 'combo') {
+                isSoldOut = !checkStock(item.mainItem, 1);
+                let mainData = menuData.find(m => m.id === item.mainItem);
+                descHtml = `<div class="combo-desc">含：${mainData?mainData.name:'主餐'} + 自選飲料</div>`;
+                hasCombo = true;
+            } else {
+                isSoldOut = !checkStock(item.id, 1);
+            }
             
             let itemHtml = `
                 <div class="menu-item fade-in" style="${isSoldOut ? 'opacity: 0.5; filter: grayscale(1);' : ''}" onclick="${isSoldOut ? '' : `openModal('${item.id}')`}">
-                    <img src="${imgSrc}" onerror="this.src='https://via.placeholder.com/80/f5f5f7/86868b?text=Error'">
+                    <img src="${imgSrc}" onerror="this.src='https://via.placeholder.com/80/f5f5f7/86868b?text=Food'">
                     <div class="item-info">
                         <p class="item-title">${item.name}</p>
-                        ${item.desc ? `<div class="combo-desc">${item.desc}</div>` : ''}
+                        ${descHtml}
                         <div class="price-area">${priceHtml}</div>
                     </div>
                     ${isSoldOut ? '<div style="color:var(--danger); font-weight:bold; font-size:0.9rem;">售完</div>' : '<div style="color:var(--primary); font-weight:bold; font-size:1.5rem;">＋</div>'}
                 </div>
             `;
 
-            if(item.type === 'combo') {
-                comboList.innerHTML += itemHtml;
-                hasCombo = true;
-            } else {
-                singleList.innerHTML += itemHtml;
-            }
+            if(item.type === 'combo') comboList.innerHTML += itemHtml;
+            else singleList.innerHTML += itemHtml;
         });
 
         if(hasCombo) document.getElementById('combo-section').style.display = 'block';
@@ -253,28 +251,62 @@
         basePrice = (currentModalItem.prePrice && currentModalItem.prePrice > 0) ? currentModalItem.prePrice : currentModalItem.price;
 
         document.getElementById('modal-title').innerText = currentModalItem.name;
-        document.getElementById('modal-desc').innerText = currentModalItem.desc || '';
         document.getElementById('modal-price').innerHTML = currentModalItem.prePrice > 0 ? `<span class="old-price" style="font-size:1rem;">$${currentModalItem.price}</span><span class="accent-price">$${currentModalItem.prePrice}</span>` : `<span class="new-price">$${currentModalItem.price}</span>`;
         document.getElementById('modal-qty').innerText = currentModalQty;
 
         const form = document.getElementById('options-form');
         form.innerHTML = '';
 
-        if (currentModalItem.optionGroups) {
-            currentModalItem.optionGroups.forEach((group, gIndex) => {
-                let groupHtml = `<div class="option-group"><div class="option-group-title">${group.name} ${group.required ? '<span class="option-required">必選</span>' : ''}</div>`;
-                group.options.forEach((opt, oIndex) => {
-                    let inputType = group.multiple ? 'checkbox' : 'radio';
-                    let priceStr = opt.priceAdd > 0 ? `<span class="option-price">+$${opt.priceAdd}</span>` : '';
-                    groupHtml += `<label class="option-row">
-                        <div class="option-label"><input type="${inputType}" class="option-input" name="group_${gIndex}" value="${oIndex}" onchange="calculateModalTotal()"><span>${opt.name}</span></div>
+        // 如果是套餐，動態生成選項 (Uber Eats 風格)
+        if(currentModalItem.type === 'combo') {
+            let mainData = menuData.find(m => m.id === currentModalItem.mainItem);
+            document.getElementById('modal-desc').innerText = `✅ 主餐：${mainData?mainData.name:'已綁定'}`;
+
+            // 1. 飲料區 (單選，必填)
+            if(currentModalItem.drinks && currentModalItem.drinks.length > 0) {
+                let dHtml = `<div class="option-group"><div class="option-group-title">選擇飲料 <span class="option-required">必選1項</span></div>`;
+                currentModalItem.drinks.forEach(d => {
+                    let dData = menuData.find(m => m.id === d.id);
+                    if(!dData) return;
+                    let outOfStock = !checkStock(d.id, 1);
+                    let priceStr = d.priceAdd > 0 ? `<span class="option-price">+$${d.priceAdd}</span>` : '';
+                    
+                    dHtml += `<label class="option-row" style="${outOfStock?'opacity:0.4':''}">
+                        <div class="option-label">
+                            <input type="radio" class="option-input" name="drink" value='{"id":"${d.id}","name":"${dData.name}","priceAdd":${d.priceAdd}}' onchange="calculateModalTotal()" ${outOfStock?'disabled':''}>
+                            <span>${dData.name} ${outOfStock?'(售完)':''}</span>
+                        </div>
                         ${priceStr}
                     </label>`;
                 });
-                groupHtml += `</div>`;
-                form.innerHTML += groupHtml;
-            });
+                dHtml += `</div>`;
+                form.innerHTML += dHtml;
+            }
+
+            // 2. 加購區 (多選，選填)
+            if(currentModalItem.extras && currentModalItem.extras.length > 0) {
+                let eHtml = `<div class="option-group"><div class="option-group-title">加購好料 <span style="font-size:0.8rem; color:#86868b; font-weight:normal;">(可複選)</span></div>`;
+                currentModalItem.extras.forEach(e => {
+                    let eData = menuData.find(m => m.id === e.id);
+                    if(!eData) return;
+                    let outOfStock = !checkStock(e.id, 1);
+                    let priceStr = e.priceAdd > 0 ? `<span class="option-price">+$${e.priceAdd}</span>` : '';
+                    
+                    eHtml += `<label class="option-row" style="${outOfStock?'opacity:0.4':''}">
+                        <div class="option-label">
+                            <input type="checkbox" class="option-input option-extra" value='{"id":"${e.id}","name":"${eData.name}","priceAdd":${e.priceAdd}}' onchange="calculateModalTotal()" ${outOfStock?'disabled':''}>
+                            <span>${eData.name} ${outOfStock?'(售完)':''}</span>
+                        </div>
+                        ${priceStr}
+                    </label>`;
+                });
+                eHtml += `</div>`;
+                form.innerHTML += eHtml;
+            }
+        } else {
+            document.getElementById('modal-desc').innerText = ''; // 單點沒有副標題
         }
+
         calculateModalTotal();
         document.getElementById('itemModal').classList.add('active');
     }
@@ -284,7 +316,13 @@
     function changeModalQty(change) {
         let newQty = currentModalQty + change;
         if (newQty < 1) newQty = 1;
-        if (!canAddStock(currentModalItem.id, newQty)) { alert(`商品庫存不足，無法再增加了！`); return; }
+        
+        // 檢查主體庫存
+        let targetId = currentModalItem.type === 'combo' ? currentModalItem.mainItem : currentModalItem.id;
+        if (!checkStock(targetId, newQty - currentModalQty)) { 
+            alert(`商品庫存不足喔！`); return; 
+        }
+        
         currentModalQty = newQty;
         document.getElementById('modal-qty').innerText = currentModalQty;
         calculateModalTotal();
@@ -292,11 +330,12 @@
 
     function calculateModalTotal() {
         let optionsTotal = 0;
-        if (currentModalItem.optionGroups) {
-            currentModalItem.optionGroups.forEach((group, gIndex) => {
-                document.querySelectorAll(`input[name="group_${gIndex}"]:checked`).forEach(input => {
-                    optionsTotal += group.options[input.value].priceAdd || 0;
-                });
+        if(currentModalItem.type === 'combo') {
+            let dRadio = document.querySelector('input[name="drink"]:checked');
+            if(dRadio) optionsTotal += JSON.parse(dRadio.value).priceAdd;
+            
+            document.querySelectorAll('.option-extra:checked').forEach(chk => {
+                optionsTotal += JSON.parse(chk.value).priceAdd;
             });
         }
         let total = (basePrice + optionsTotal) * currentModalQty;
@@ -305,35 +344,44 @@
     }
 
     function addToCart() {
-        let selectedOptions = []; let optionsPriceAdd = 0; let isValid = true;
-        if (currentModalItem.optionGroups) {
-            for (let gIndex = 0; gIndex < currentModalItem.optionGroups.length; gIndex++) {
-                let group = currentModalItem.optionGroups[gIndex];
-                let inputs = document.querySelectorAll(`input[name="group_${gIndex}"]:checked`);
-                if (group.required && inputs.length === 0) { alert(`請選擇「${group.name}」`); isValid = false; break; }
-                inputs.forEach(input => {
-                    let opt = group.options[input.value];
-                    selectedOptions.push({ name: opt.name, priceAdd: opt.priceAdd || 0 });
-                    optionsPriceAdd += opt.priceAdd || 0;
-                });
+        let selectedOptions = []; let optionsPriceAdd = 0;
+        
+        if(currentModalItem.type === 'combo') {
+            let dRadio = document.querySelector('input[name="drink"]:checked');
+            if(currentModalItem.drinks.length > 0 && !dRadio) { alert("請記得選擇飲料喔！"); return; }
+            if(dRadio) {
+                let dData = JSON.parse(dRadio.value);
+                selectedOptions.push(dData); optionsPriceAdd += dData.priceAdd;
             }
+            document.querySelectorAll('.option-extra:checked').forEach(chk => {
+                let eData = JSON.parse(chk.value);
+                selectedOptions.push(eData); optionsPriceAdd += eData.priceAdd;
+            });
         }
-        if (!isValid) return;
 
-        let cartItem = { id: currentModalItem.id, name: currentModalItem.name, unitPrice: basePrice + optionsPriceAdd, qty: currentModalQty, options: selectedOptions };
+        let cartItem = { 
+            id: currentModalItem.id, 
+            name: currentModalItem.name, 
+            unitPrice: basePrice + optionsPriceAdd, 
+            qty: currentModalQty, 
+            options: selectedOptions,
+            mainItem: currentModalItem.type === 'combo' ? currentModalItem.mainItem : null // 紀錄主餐用來扣庫存
+        };
+
+        // 相同的選項組合直接合併數量
         let existingIndex = cart.findIndex(i => i.id === cartItem.id && JSON.stringify(i.options) === JSON.stringify(cartItem.options));
         if (existingIndex > -1) { cart[existingIndex].qty += currentModalQty; } else { cart.push(cartItem); }
 
         updateCartUI();
         document.getElementById('itemModal').classList.remove('active');
-        renderMenu(); // 刷新外層畫面按鈕
+        renderMenu(); // 刷新外層「售完」狀態
     }
 
     function removeCartItem(index) {
         cart.splice(index, 1);
         updateCartUI();
         if (cart.length === 0) backToMenu(); else goToCart();
-        renderMenu(); // 刷新外層畫面按鈕
+        renderMenu(); 
     }
 
     function updateCartUI() {
@@ -350,7 +398,7 @@
             html += `<div class="summary-item" style="position:relative; padding-right: 30px;">
                 <div style="width: 100%;"><span><b>${item.name}</b> <span style="color:#86868b">x ${item.qty}</span></span><span style="font-weight:600; float:right;">$${subtotal}</span></div>
                 ${optionsText ? `<div class="summary-options">${optionsText}</div>` : ''}
-                <button onclick="removeCartItem(${index})" style="position:absolute; right:0; top:0; background:none; border:none; color:var(--danger); font-size:1.4rem; cursor:pointer;">×</button>
+                <button onclick="removeCartItem(${index})" style="position:absolute; right:0; top:0; background:none; border:none; color:var(--danger); font-size:1.5rem; cursor:pointer;">×</button>
             </div>`;
         });
         document.getElementById('cart-items').innerHTML = html;
@@ -412,21 +460,25 @@
         document.getElementById('submitBtn').innerText = "處理中...";
         document.getElementById('submitBtn').disabled = true;
 
-        let orderItems = ''; let totalAmt = 0; let rawCart = {}; 
+        let orderItems = ''; let totalAmt = 0; 
+        // 🌟 rawCart 負責整理「到底要扣除哪些真實單品」
+        let rawCart = {}; 
 
         cart.forEach(cartItem => {
             let optionsText = cartItem.options.length > 0 ? ` <br><small style="color:#86868b; margin-left:10px;">(${cartItem.options.map(o=>o.name).join(', ')})</small>` : '';
             orderItems += `<b>${cartItem.name}</b> <span style="color:#86868b">x${cartItem.qty}</span>${optionsText}<br><br>`;
             totalAmt += (cartItem.unitPrice * cartItem.qty);
             
-            // 解析出要扣庫存的單點項目 (套餐就拆成裡面的單品來扣)
-            let mItem = menuData.find(m => m.id === cartItem.id);
-            if(mItem) {
-                if(mItem.type === 'item') {
-                    rawCart[mItem.id] = (rawCart[mItem.id] || 0) + cartItem.qty;
-                } else if (mItem.type === 'combo' && mItem.comboItems) {
-                    mItem.comboItems.forEach(cId => { rawCart[cId] = (rawCart[cId] || 0) + cartItem.qty; });
-                }
+            // 單點直接扣
+            if(!cartItem.mainItem) {
+                rawCart[cartItem.id] = (rawCart[cartItem.id] || 0) + cartItem.qty;
+            } else {
+                // 套餐扣主餐
+                rawCart[cartItem.mainItem] = (rawCart[cartItem.mainItem] || 0) + cartItem.qty;
+                // 套餐扣所有選的飲料跟加購配料
+                cartItem.options.forEach(opt => {
+                    rawCart[opt.id] = (rawCart[opt.id] || 0) + cartItem.qty;
+                });
             }
         });
 
