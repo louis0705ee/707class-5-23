@@ -6,7 +6,6 @@ const port = process.env.PORT || 3000;
 app.use(express.json());
 app.use(express.static('public'));
 
-// 讀取環境變數的鑰匙
 const API_KEY = process.env.JSONBIN_API_KEY;
 const ORDER_BIN_ID = process.env.ORDER_BIN_ID;
 const MENU_BIN_ID = process.env.MENU_BIN_ID;
@@ -39,42 +38,30 @@ app.get('/api/orders', async (req, res) => {
     } catch (e) { res.status(500).send("Error"); }
 });
 
-// 🚀 核心升級：送出訂單的同時「扣除庫存」
 app.post('/api/orders', async (req, res) => {
     try {
-        const { orderData, rawCart } = req.body; // 接收訂單文字與購物車明細
+        const { orderData, rawCart } = req.body; 
 
-        // 1. 先抓取最新菜單來扣庫存
+        // 1. 扣除庫存
         const menuResp = await fetch(`https://api.jsonbin.io/v3/b/${MENU_BIN_ID}/latest`, { headers: { "X-Master-Key": API_KEY } });
         const menuDataObj = await menuResp.json();
         let menuData = menuDataObj.record || [];
 
-        // 根據購物車明細扣除庫存 (包含拆解套餐)
         for (let id in rawCart) {
             let qty = rawCart[id];
             let item = menuData.find(i => i.id === id);
-            if (item) {
-                if (item.type === 'combo' && item.comboItems) {
-                    // 如果是套餐，扣除裡面的單品庫存
-                    item.comboItems.forEach(cId => {
-                        let cItem = menuData.find(i => i.id === cId);
-                        if (cItem) cItem.stock = Math.max(0, cItem.stock - qty);
-                    });
-                } else if (item.type === 'item') {
-                    // 如果是單點，直接扣除
-                    item.stock = Math.max(0, item.stock - qty);
-                }
+            if (item && item.stock !== undefined) {
+                item.stock = Math.max(0, item.stock - qty);
             }
         }
 
-        // 將扣完庫存的新菜單存回雲端
         await fetch(`https://api.jsonbin.io/v3/b/${MENU_BIN_ID}`, {
             method: 'PUT',
             headers: { "Content-Type": "application/json", "X-Master-Key": API_KEY },
             body: JSON.stringify(menuData)
         });
 
-        // 2. 儲存客人的訂單
+        // 2. 儲存訂單
         const orderResp = await fetch(`https://api.jsonbin.io/v3/b/${ORDER_BIN_ID}/latest`, { headers: { "X-Master-Key": API_KEY } });
         const orderDataObj = await orderResp.json();
         let allOrders = orderDataObj.record || [];
